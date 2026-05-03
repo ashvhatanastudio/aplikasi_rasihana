@@ -512,16 +512,16 @@ export default function ReportsView() {
             background: white !important;
             box-sizing: border-box;
             visibility: visible !important;
-            zoom: 1.6;
+            zoom: 2.2;
           }
           #report-thermal-receipt * {
             visibility: visible !important;
           }
           /* Perbesar font secara drastis untuk mode cetak */
-          .text-[8px] { font-size: 12px !important; }
-          .text-[10px] { font-size: 14px !important; }
-          .text-[7px] { font-size: 10px !important; }
-          .text-sm { font-size: 18px !important; }
+          .text-[8px] { font-size: 16px !important; }
+          .text-[10px] { font-size: 20px !important; }
+          .text-[7px] { font-size: 14px !important; }
+          .text-sm { font-size: 24px !important; }
         }
       `}</style>
 

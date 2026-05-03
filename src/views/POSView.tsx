@@ -314,16 +314,16 @@ export default function POSView() {
             background: white !important;
             box-sizing: border-box;
             visibility: visible !important;
-            zoom: 1.6; /* Memperbesar seluruh konten untuk printer thermal */
+            zoom: 2.2; /* Tingkatkan zoom lebih besar */
           }
           #thermal-receipt * {
             visibility: visible !important;
           }
-          /* Perbesar font secara drastis untuk mode cetak */
-          .text-[8px] { font-size: 12px !important; }
-          .text-[10px] { font-size: 14px !important; }
-          .text-[7px] { font-size: 10px !important; }
-          .text-sm { font-size: 18px !important; }
+          /* Perbesar font secara drastis untuk mode cetak agar terbaca di thermal 58mm */
+          .text-[8px] { font-size: 16px !important; }
+          .text-[10px] { font-size: 20px !important; }
+          .text-[7px] { font-size: 14px !important; }
+          .text-sm { font-size: 24px !important; }
         }
       `}</style>
       
