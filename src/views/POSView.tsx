@@ -184,64 +184,9 @@ export default function POSView() {
   };
 
   const printReceipt = () => {
-    try {
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        // Fallback jika popup diblokir
-        window.focus();
-        window.print();
-        return;
-      }
-
-      const receiptHtml = document.getElementById('thermal-receipt')?.innerHTML;
-      const styles = `
-        <style>
-          body { 
-            font-family: monospace; 
-            margin: 0; 
-            padding: 10px; 
-            width: 58mm;
-            color: black;
-          }
-          .text-center { text-center: center; }
-          .flex { display: flex; }
-          .justify-between { justify-content: space-between; }
-          .font-bold { font-weight: bold; }
-          .uppercase { text-transform: uppercase; }
-          .border-t { border-top: 1px dashed black; }
-          .my-1 { margin-top: 4px; margin-bottom: 4px; }
-          .my-2 { margin-top: 8px; margin-bottom: 8px; }
-          .italic { font-style: italic; }
-          .text-sm { font-size: 14px; }
-          .text-[8px] { font-size: 8px; }
-          .text-[10px] { font-size: 10px; }
-          .text-[7px] { font-size: 7px; }
-          .leading-tight { line-height: 1.2; }
-          .leading-none { line-height: 1; }
-          .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-          .max-w-[40px] { max-width: 40px; }
-          @media print {
-            @page { size: 58mm auto; margin: 0; }
-          }
-        </style>
-      `;
-
-      printWindow.document.write(`
-        <html>
-          <head><title>Print Receipt</title>${styles}</head>
-          <body>${receiptHtml}</body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.focus();
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 250);
-    } catch (e) {
-      console.error(e);
-      window.print();
-    }
+    // Di HP, window.open sering diblokir atau gagal. 
+    // Kita langsung gunakan window.print() dengan CSS media print.
+    window.print();
   };
 
   return (

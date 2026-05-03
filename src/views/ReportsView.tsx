@@ -103,56 +103,7 @@ export default function ReportsView() {
     
     // Trigger print after state update
     setTimeout(() => {
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        alert("Popup diblokir. Harap aktifkan popup agar bisa mencetak struk.");
-        return;
-      }
-
-      const receiptHtml = document.getElementById('report-thermal-receipt')?.innerHTML;
-      const styles = `
-        <style>
-          body { 
-            font-family: monospace; 
-            margin: 0; 
-            padding: 10px; 
-            width: 58mm;
-            color: black;
-          }
-          .text-center { text-align: center; }
-          .flex { display: flex; }
-          .justify-between { justify-content: space-between; }
-          .font-bold { font-weight: bold; }
-          .uppercase { text-transform: uppercase; }
-          .border-t { border-top: 1px dashed black; }
-          .my-1 { margin-top: 4px; margin-bottom: 4px; }
-          .my-2 { margin-top: 8px; margin-bottom: 8px; }
-          .italic { font-style: italic; }
-          .text-sm { font-size: 14px; }
-          .text-[8px] { font-size: 8px; }
-          .text-[10px] { font-size: 10px; }
-          .text-[7px] { font-size: 7px; }
-          .leading-tight { line-height: 1.2; }
-          .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-          .max-w-[80px] { max-width: 80px; }
-          @media print {
-            @page { size: 58mm auto; margin: 0; }
-          }
-        </style>
-      `;
-
-      printWindow.document.write(`
-        <html>
-          <head><title>Print Receipt</title>${styles}</head>
-          <body>${receiptHtml}</body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.focus();
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 250);
+      window.print();
     }, 100);
   };
 
@@ -528,6 +479,37 @@ export default function ReportsView() {
         )}
       </AnimatePresence>
 
+      <style>{`
+        @media print {
+          @page {
+            size: 58mm auto;
+            margin: 0;
+          }
+          body { 
+            margin: 0; 
+            padding: 0; 
+            background: white;
+          }
+          body > *:not(#report-thermal-receipt) {
+            display: none !important;
+          }
+          #report-thermal-receipt { 
+            display: block !important;
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 58mm;
+            padding: 4mm;
+            margin: 0;
+            visibility: visible !important;
+            color: black !important;
+            background: white !important;
+          }
+          #report-thermal-receipt * {
+            visibility: visible !important;
+          }
+        }
+      `}</style>
       {/* Hidden Thermal Receipt for Printing */}
       <div id="report-thermal-receipt" className="hidden print:block fixed inset-0 bg-white z-[9999] p-2 text-black font-mono">
         <div className="w-[58mm] mx-auto text-center">
