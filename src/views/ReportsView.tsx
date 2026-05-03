@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Calendar, FileText, Loader2, Download, Eye, Plus, Trash2, Printer } from 'lucide-react';
 import { supabase } from '@/src/lib/supabase';
 import { formatCurrency } from '@/src/lib/utils';
@@ -491,7 +492,13 @@ export default function ReportsView() {
             padding: 0 !important;
             background: white !important;
             overflow: visible !important;
+            -webkit-print-color-adjust: exact;
           }
+          /* Sembunyikan SEMUA elemen root */
+          #root {
+            display: none !important;
+          }
+          /* Sembunyikan elemen lain yang mungkin ada di level body */
           body > *:not(#report-thermal-receipt) {
             display: none !important;
           }
@@ -509,87 +516,91 @@ export default function ReportsView() {
           #report-thermal-receipt * {
             visibility: visible !important;
           }
-          /* Perbesar font sedikit untuk pembacaan lebih baik di mobile */
-          .text-[8px] { font-size: 10px; }
-          .text-[10px] { font-size: 12px; }
-          .text-[7px] { font-size: 9px; }
-          .text-sm { font-size: 15px; }
+          /* Force small fonts for thermal */
+          .text-[8px] { font-size: 10px !important; }
+          .text-[10px] { font-size: 12px !important; }
+          .text-[7px] { font-size: 9px !important; }
+          .text-sm { font-size: 15px !important; }
         }
       `}</style>
-      {/* Hidden Thermal Receipt for Printing */}
-      <div id="report-thermal-receipt" className="hidden print:block bg-white text-black font-mono">
-        <div className="w-[58mm] mx-auto text-center">
-          <h2 className="font-bold text-sm uppercase tracking-tighter">KASIR JASA SETRIKA</h2>
-          <p className="text-[8px] leading-tight mb-1">Cucian Rapi, Transaksi Beres</p>
-          <div className="border-t border-dashed border-black my-1"></div>
-          
-          <h3 className="text-[10px] font-bold uppercase mb-1">
-            {printData?.payment_status === 'PAID' ? 'Struk Pembayaran' : 'Struk Order / Tag Pengambilan'}
-          </h3>
-          
-          <div className="flex justify-between text-[8px] font-bold">
-            <span>INV:</span>
-            <span>{printData?.invoice_number}</span>
-          </div>
-          <div className="flex justify-between text-[8px] mb-1">
-            <span>TGL:</span>
-            <span>{printData?.date}</span>
-          </div>
-          <div className="flex justify-between text-[8px] mb-1">
-            <span>PLG:</span>
-            <span className="truncate max-w-[80px] uppercase font-bold text-[10px]">{printData?.customerName}</span>
-          </div>
-          <div className="flex justify-between text-[8px] mb-1">
-            <span>ALM:</span>
-            <span className="truncate max-w-[80px] text-[7px] text-right leading-none">{printData?.customerAddress}</span>
-          </div>
 
-          <div className="border-t border-dashed border-black my-1"></div>
-
-          {printData?.items.map((item: any, i: number) => (
-            <div key={i} className="mb-1">
-              <div className="text-[8px] text-left uppercase font-bold leading-none">{item.name}</div>
-              <div className="flex justify-between text-[8px]">
-                <span>{item.qty} x {item.price.toLocaleString()}</span>
-                <span>{(item.qty * item.price).toLocaleString()}</span>
-              </div>
+      {/* Hidden Thermal Receipt for Printing - Rendered via Portal */}
+      {typeof document !== 'undefined' && createPortal(
+        <div id="report-thermal-receipt" className="hidden print:block bg-white text-black font-mono">
+          <div className="w-[58mm] mx-auto text-center">
+            <h2 className="font-bold text-sm uppercase tracking-tighter">KASIR JASA SETRIKA</h2>
+            <p className="text-[8px] leading-tight mb-1">Cucian Rapi, Transaksi Beres</p>
+            <div className="border-t border-dashed border-black my-1"></div>
+            
+            <h3 className="text-[10px] font-bold uppercase mb-1">
+              {printData?.payment_status === 'PAID' ? 'Struk Pembayaran' : 'Struk Order / Tag Pengambilan'}
+            </h3>
+            
+            <div className="flex justify-between text-[8px] font-bold">
+              <span>INV:</span>
+              <span>{printData?.invoice_number}</span>
             </div>
-          ))}
-
-          <div className="border-t border-dashed border-black my-1"></div>
-          
-          <div className="flex justify-between text-[10px] font-bold">
-            <span>TOTAL:</span>
-            <span>{printData?.total_bayar?.toLocaleString('id-ID')}</span>
-          </div>
-          
-          {printData?.payment_status === 'PAID' ? (
-            <>
-              <div className="flex justify-between text-[8px]">
-                <span>BAYAR:</span>
-                <span>{printData?.uang_dibayar?.toLocaleString('id-ID')}</span>
-              </div>
-              <div className="flex justify-between text-[8px]">
-                <span>KEMBALI:</span>
-                <span>{printData?.kembalian?.toLocaleString('id-ID')}</span>
-              </div>
-              <div className="flex justify-between text-[7px] mt-1 space-x-1">
-                <span className="bg-black text-white px-1">LUNAS</span>
-                <span className="italic uppercase">{printData?.metode_pembayaran}</span>
-              </div>
-            </>
-          ) : (
-            <div className="mt-2 text-center border border-black p-1">
-              <p className="text-[8px] font-bold uppercase">Belum Bayar</p>
-              <p className="text-[7px]">Bawa struk ini saat pengambilan</p>
+            <div className="flex justify-between text-[8px] mb-1">
+              <span>TGL:</span>
+              <span>{printData?.date}</span>
             </div>
-          )}
+            <div className="flex justify-between text-[8px] mb-1">
+              <span>PLG:</span>
+              <span className="truncate max-w-[80px] uppercase font-bold text-[10px]">{printData?.customerName}</span>
+            </div>
+            <div className="flex justify-between text-[8px] mb-1">
+              <span>ALM:</span>
+              <span className="truncate max-w-[80px] text-[7px] text-right leading-none">{printData?.customerAddress}</span>
+            </div>
 
-          <div className="border-t border-dashed border-black my-2"></div>
-          <p className="text-[7px] leading-none mb-1 uppercase italic text-center">Terima Kasih Telah Menggunakan Jasa Kami</p>
-          <div className="h-6"></div>
-        </div>
-      </div>
+            <div className="border-t border-dashed border-black my-1"></div>
+
+            {printData?.items.map((item: any, i: number) => (
+              <div key={i} className="mb-1">
+                <div className="text-[8px] text-left uppercase font-bold leading-none">{item.name}</div>
+                <div className="flex justify-between text-[8px]">
+                  <span>{item.qty} x {item.price.toLocaleString()}</span>
+                  <span>{(item.qty * item.price).toLocaleString()}</span>
+                </div>
+              </div>
+            ))}
+
+            <div className="border-t border-dashed border-black my-1"></div>
+            
+            <div className="flex justify-between text-[10px] font-bold">
+              <span>TOTAL:</span>
+              <span>{printData?.total_bayar?.toLocaleString('id-ID')}</span>
+            </div>
+            
+            {printData?.payment_status === 'PAID' ? (
+              <>
+                <div className="flex justify-between text-[8px]">
+                  <span>BAYAR:</span>
+                  <span>{printData?.uang_dibayar?.toLocaleString('id-ID')}</span>
+                </div>
+                <div className="flex justify-between text-[8px]">
+                  <span>KEMBALI:</span>
+                  <span>{printData?.kembalian?.toLocaleString('id-ID')}</span>
+                </div>
+                <div className="flex justify-between text-[7px] mt-1 space-x-1">
+                  <span className="bg-black text-white px-1">LUNAS</span>
+                  <span className="italic uppercase">{printData?.metode_pembayaran}</span>
+                </div>
+              </>
+            ) : (
+              <div className="mt-2 text-center border border-black p-1">
+                <p className="text-[8px] font-bold uppercase">Belum Bayar</p>
+                <p className="text-[7px]">Bawa struk ini saat pengambilan</p>
+              </div>
+            )}
+
+            <div className="border-t border-dashed border-black my-2"></div>
+            <p className="text-[7px] leading-none mb-1 uppercase italic text-center">Terima Kasih Telah Menggunakan Jasa Kami</p>
+            <div className="h-6"></div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
