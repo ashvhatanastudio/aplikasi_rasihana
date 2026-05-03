@@ -314,23 +314,23 @@ export default function POSView() {
             background: white !important;
             box-sizing: border-box;
             visibility: visible !important;
-            zoom: 2.5; /* Perbesar skala keseluruhan secara drastis */
+            zoom: 3.0; /* Tingkatkan zoom lebih besar lagi untuk memenuhi lebar 58mm */
           }
           #thermal-receipt * {
             visibility: visible !important;
           }
           /* Gunakan satuan pt yang lebih stabil untuk pencetakan struk */
-          .text-[8px] { font-size: 13pt !important; line-height: 1.2 !important; }
-          .text-[10px] { font-size: 15pt !important; line-height: 1.2 !important; }
-          .text-[7px] { font-size: 11pt !important; line-height: 1.1 !important; }
-          .text-[9px] { font-size: 14pt !important; line-height: 1.2 !important; }
-          .text-[14px] { font-size: 22pt !important; line-height: 1.1 !important; }
-          .text-sm { font-size: 20pt !important; line-height: 1.2 !important; }
+          .text-[8px] { font-size: 14pt !important; line-height: 1.2 !important; }
+          .text-[10px] { font-size: 16pt !important; line-height: 1.2 !important; }
+          .text-[7px] { font-size: 12pt !important; line-height: 1.1 !important; }
+          .text-[9px] { font-size: 15pt !important; line-height: 1.2 !important; }
+          .text-[14px] { font-size: 24pt !important; line-height: 1.1 !important; }
+          .text-sm { font-size: 22pt !important; line-height: 1.2 !important; }
           .font-bold { font-weight: 700 !important; }
-          .border-dashed { border-width: 2pt !important; }
-          .border-t { border-top-width: 1.5pt !important; }
-          .border-b { border-bottom-width: 1.5pt !important; }
-          .border-2 { border-width: 3pt !important; }
+          .border-dashed { border-width: 2.5pt !important; }
+          .border-t { border-top-width: 2pt !important; }
+          .border-b { border-bottom-width: 2pt !important; }
+          .border-2 { border-width: 4pt !important; }
         }
       `}</style>
       
