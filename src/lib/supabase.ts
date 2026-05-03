@@ -18,7 +18,7 @@ const cleanStr = (str: string | undefined): string => {
 };
 
 const getRawEnv = (key: string): string => {
-  const val = import.meta.env[key];
+  const val = (import.meta as any).env[key];
   if (!val || val === '""' || val === "''" || val === '""' || val === "undefined") return '';
   return val;
 };

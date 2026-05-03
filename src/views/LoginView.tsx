@@ -59,7 +59,7 @@ export default function LoginView() {
     }
   };
 
-  const isMissingEnv = !import.meta.env.VITE_SUPABASE_URL;
+  const isMissingEnv = !(import.meta as any).env.VITE_SUPABASE_URL;
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans">

@@ -512,22 +512,23 @@ export default function ReportsView() {
             background: white !important;
             box-sizing: border-box;
             visibility: visible !important;
+            zoom: 1.6;
           }
           #report-thermal-receipt * {
             visibility: visible !important;
           }
-          /* Force small fonts for thermal */
-          .text-[8px] { font-size: 10px !important; }
-          .text-[10px] { font-size: 12px !important; }
-          .text-[7px] { font-size: 9px !important; }
-          .text-sm { font-size: 15px !important; }
+          /* Perbesar font secara drastis untuk mode cetak */
+          .text-[8px] { font-size: 12px !important; }
+          .text-[10px] { font-size: 14px !important; }
+          .text-[7px] { font-size: 10px !important; }
+          .text-sm { font-size: 18px !important; }
         }
       `}</style>
 
       {/* Hidden Thermal Receipt for Printing - Rendered via Portal */}
       {typeof document !== 'undefined' && createPortal(
         <div id="report-thermal-receipt" className="hidden print:block bg-white text-black font-mono">
-          <div className="w-[58mm] mx-auto text-center">
+          <div className="w-full mx-auto text-center px-2">
             <h2 className="font-bold text-sm uppercase tracking-tighter">KASIR JASA SETRIKA</h2>
             <p className="text-[8px] leading-tight mb-1">Cucian Rapi, Transaksi Beres</p>
             <div className="border-t border-dashed border-black my-1"></div>
