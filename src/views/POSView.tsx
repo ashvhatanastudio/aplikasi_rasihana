@@ -289,7 +289,7 @@ export default function POSView() {
             margin: 0;
           }
           html, body {
-            width: 58mm !important;
+            width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
             background: white !important;
@@ -306,7 +306,7 @@ export default function POSView() {
           }
           #thermal-receipt { 
             display: block !important;
-            width: 58mm !important;
+            width: 100% !important;
             padding: 2mm !important;
             margin: 0 !important;
             position: static !important;
