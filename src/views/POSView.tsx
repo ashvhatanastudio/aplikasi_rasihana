@@ -192,7 +192,7 @@ export default function POSView() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full max-w-7xl mx-auto relative">
       {/* Thermal Receipt Template - Only visible during printing */}
-      <div id="thermal-receipt" className="invisible print:visible fixed inset-0 bg-white z-[9999] p-2 text-black font-mono">
+      <div id="thermal-receipt" className="hidden print:block bg-white text-black font-mono">
         <div className="w-[58mm] mx-auto text-center">
           <h2 className="font-bold text-sm uppercase tracking-tighter">KASIR JASA SETRIKA</h2>
           <p className="text-[8px] leading-tight mb-1">Cucian Rapi, Transaksi Beres</p>
@@ -287,26 +287,35 @@ export default function POSView() {
             size: 58mm auto;
             margin: 0;
           }
-          body { 
-            visibility: hidden;
-            margin: 0; 
-            padding: 0; 
-            background: white;
+          html, body {
+            width: 58mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            overflow: visible !important;
           }
-          #thermal-receipt, #thermal-receipt * {
-            visibility: visible;
+          body > *:not(#thermal-receipt) {
+            display: none !important;
           }
           #thermal-receipt { 
             display: block !important;
-            position: absolute; 
-            left: 0; 
-            top: 0; 
-            width: 58mm;
-            padding: 4mm;
-            margin: 0;
+            width: 58mm !important;
+            padding: 2mm !important;
+            margin: 0 !important;
+            position: static !important;
             color: black !important;
             background: white !important;
+            box-sizing: border-box;
+            visibility: visible !important;
           }
+          #thermal-receipt * {
+            visibility: visible !important;
+          }
+          /* Perbesar font sedikit untuk pembacaan lebih baik di mobile */
+          .text-[8px] { font-size: 10px; }
+          .text-[10px] { font-size: 12px; }
+          .text-[7px] { font-size: 9px; }
+          .text-sm { font-size: 15px; }
         }
       `}</style>
       {/* Kolom Kiri: Produk & Pelanggan */}
