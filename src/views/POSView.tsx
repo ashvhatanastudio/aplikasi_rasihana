@@ -192,7 +192,7 @@ export default function POSView() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full max-w-7xl mx-auto relative">
       {/* Thermal Receipt Template - Only visible during printing */}
-      <div id="thermal-receipt" className="hidden print:block fixed inset-0 bg-white z-[9999] p-2 text-black font-mono">
+      <div id="thermal-receipt" className="invisible print:visible fixed inset-0 bg-white z-[9999] p-2 text-black font-mono">
         <div className="w-[58mm] mx-auto text-center">
           <h2 className="font-bold text-sm uppercase tracking-tighter">KASIR JASA SETRIKA</h2>
           <p className="text-[8px] leading-tight mb-1">Cucian Rapi, Transaksi Beres</p>
@@ -288,12 +288,13 @@ export default function POSView() {
             margin: 0;
           }
           body { 
+            visibility: hidden;
             margin: 0; 
             padding: 0; 
             background: white;
           }
-          body > *:not(#thermal-receipt) {
-            display: none !important;
+          #thermal-receipt, #thermal-receipt * {
+            visibility: visible;
           }
           #thermal-receipt { 
             display: block !important;
@@ -303,12 +304,8 @@ export default function POSView() {
             width: 58mm;
             padding: 4mm;
             margin: 0;
-            visibility: visible !important;
             color: black !important;
             background: white !important;
-          }
-          #thermal-receipt * {
-            visibility: visible !important;
           }
         }
       `}</style>

@@ -486,12 +486,13 @@ export default function ReportsView() {
             margin: 0;
           }
           body { 
+            visibility: hidden;
             margin: 0; 
             padding: 0; 
             background: white;
           }
-          body > *:not(#report-thermal-receipt) {
-            display: none !important;
+          #report-thermal-receipt, #report-thermal-receipt * {
+            visibility: visible;
           }
           #report-thermal-receipt { 
             display: block !important;
@@ -501,17 +502,13 @@ export default function ReportsView() {
             width: 58mm;
             padding: 4mm;
             margin: 0;
-            visibility: visible !important;
             color: black !important;
             background: white !important;
-          }
-          #report-thermal-receipt * {
-            visibility: visible !important;
           }
         }
       `}</style>
       {/* Hidden Thermal Receipt for Printing */}
-      <div id="report-thermal-receipt" className="hidden print:block fixed inset-0 bg-white z-[9999] p-2 text-black font-mono">
+      <div id="report-thermal-receipt" className="invisible print:visible fixed inset-0 bg-white z-[9999] p-2 text-black font-mono">
         <div className="w-[58mm] mx-auto text-center">
           <h2 className="font-bold text-sm uppercase tracking-tighter">KASIR JASA SETRIKA</h2>
           <p className="text-[8px] leading-tight mb-1">Cucian Rapi, Transaksi Beres</p>
