@@ -289,7 +289,7 @@ export default function POSView() {
             margin: 0;
           }
           html, body {
-            width: 58mm !important;
+            width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
             background: white !important;
@@ -306,38 +306,39 @@ export default function POSView() {
           }
           #thermal-receipt { 
             display: block !important;
-            width: 58mm !important;
-            padding: 1mm !important;
+            width: 100% !important;
+            padding: 2mm !important;
             margin: 0 !important;
             position: static !important;
             color: black !important;
             background: white !important;
             box-sizing: border-box;
             visibility: visible !important;
-            zoom: 1.0 !important; /* Reset zoom untuk menghindari distorsi */
+            zoom: 1.0 !important;
           }
           #thermal-receipt * {
             visibility: visible !important;
           }
-          /* Font standar agar tajam dan terbaca di thermal 58mm */
-          .text-[8px] { font-size: 9pt !important; line-height: 1.2 !important; }
-          .text-[10px] { font-size: 11pt !important; line-height: 1.2 !important; }
-          .text-[7px] { font-size: 8pt !important; line-height: 1.1 !important; }
-          .text-[9px] { font-size: 10pt !important; line-height: 1.2 !important; }
-          .text-[14px] { font-size: 16pt !important; line-height: 1.1 !important; }
-          .text-sm { font-size: 12pt !important; line-height: 1.2 !important; }
+          /* Font yang dioptimalkan untuk kertas thermal (lebih besar dan tajam) */
+          .text-[8px] { font-size: 11pt !important; line-height: 1.2 !important; }
+          .text-[10px] { font-size: 13pt !important; line-height: 1.2 !important; }
+          .text-[7px] { font-size: 10pt !important; line-height: 1.1 !important; }
+          .text-[9px] { font-size: 11pt !important; line-height: 1.2 !important; }
+          .text-[14px] { font-size: 20pt !important; line-height: 1.1 !important; }
+          .text-sm { font-size: 14pt !important; line-height: 1.2 !important; }
           .font-bold { font-weight: 700 !important; }
-          .border-dashed { border-top: 1pt dashed black !important; border-width: 0 !important; }
-          .border-t { border-top: 1pt solid black !important; }
-          .border-b { border-bottom: 1pt solid black !important; }
-          .border-2 { border: 1pt solid black !important; }
+          /* Border yang lebih tebal agar terlihat jelas saat di-print */
+          .border-dashed { border-top: 1.5pt dashed black !important; border-width: 0 !important; }
+          .border-t { border-top: 1.5pt solid black !important; }
+          .border-b { border-bottom: 1.5pt solid black !important; }
+          .border-2 { border: 1.5pt solid black !important; }
         }
       `}</style>
       
       {/* Thermal Receipt Template - Rendered via Portal to avoid layout interference */}
       {typeof document !== 'undefined' && createPortal(
         <div id="thermal-receipt" className="hidden print:block bg-white text-black font-mono">
-          <div className="w-[58mm] mx-auto text-center px-1">
+          <div className="w-full mx-auto text-center px-2">
             <h2 className="font-bold text-sm uppercase tracking-tighter">KASIR JASA SETRIKA</h2>
             <p className="text-[8px] leading-tight mb-1">Cucian Rapi, Transaksi Beres</p>
             <div className="border-t border-dashed border-black my-1"></div>
