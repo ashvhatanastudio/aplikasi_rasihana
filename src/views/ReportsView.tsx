@@ -483,14 +483,15 @@ export default function ReportsView() {
       <style>{`
         @media print {
           @page {
-            size: 58mm auto;
+            size: auto;
             margin: 0;
           }
           html, body {
-            width: 58mm !important;
+            width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
             background: white !important;
+            -webkit-print-color-adjust: exact;
           }
           #root {
             display: none !important;
@@ -500,8 +501,8 @@ export default function ReportsView() {
           }
           #report-thermal-receipt { 
             display: block !important;
-            width: 58mm !important;
-            padding: 2mm !important;
+            width: 100% !important;
+            padding: 5% !important;
             margin: 0 !important;
             color: black !important;
             background: white !important;
@@ -511,26 +512,34 @@ export default function ReportsView() {
           #report-thermal-receipt * {
             visibility: visible !important;
             font-family: 'Courier New', Courier, monospace !important;
+            color: black !important;
           }
-          /* Font Sizes Optimized for 58mm Thermal Printer */
-          .text-\[8px\] { font-size: 8pt !important; line-height: 1.2 !important; }
-          .text-\[10px\] { font-size: 10pt !important; line-height: 1.2 !important; }
-          .text-\[7px\] { font-size: 7pt !important; line-height: 1.1 !important; }
-          .text-\[9px\] { font-size: 9pt !important; line-height: 1.2 !important; }
-          .text-\[14px\] { font-size: 14pt !important; line-height: 1.1 !important; }
-          .text-sm { font-size: 12pt !important; line-height: 1.2 !important; }
+          /* Font Sizes Optimized for A4-to-58mm Scaling */
+          .text-\[8px\] { font-size: 38pt !important; line-height: 1.2 !important; }
+          .text-\[10px\] { font-size: 46pt !important; line-height: 1.2 !important; }
+          .text-\[7px\] { font-size: 32pt !important; line-height: 1.1 !important; }
+          .text-\[9px\] { font-size: 42pt !important; line-height: 1.2 !important; }
+          .text-\[14px\] { font-size: 64pt !important; line-height: 1.1 !important; }
+          .text-sm { font-size: 52pt !important; line-height: 1.2 !important; }
           
-          .font-bold { font-weight: bold !important; }
-          .border-dashed { border-top: 0.5pt dashed black !important; border-width: 0 !important; }
-          .border-t { border-top: 0.5pt solid black !important; }
-          .border-b { border-bottom: 0.5pt solid black !important; }
-          .border-2 { border: 0.5pt solid black !important; }
+          .font-bold { font-weight: 900 !important; }
+          .border-dashed { border-top: 4pt dashed black !important; border-width: 0 !important; margin: 20pt 0 !important; }
+          .border-t { border-top: 4pt solid black !important; }
+          .border-b { border-bottom: 4pt solid black !important; }
+          .border-2 { border: 4pt solid black !important; }
           .flex { display: flex !important; }
           .justify-between { justify-content: space-between !important; }
           .text-center { text-align: center !important; }
           .text-left { text-align: left !important; }
           .text-right { text-align: right !important; }
           .uppercase { text-transform: uppercase !important; }
+          .space-y-1 > * + * { margin-top: 5pt !important; }
+          .space-y-2 > * + * { margin-top: 10pt !important; }
+          .my-2 { margin-top: 20pt !important; margin-bottom: 20pt !important; }
+          .my-3 { margin-top: 30pt !important; margin-bottom: 30pt !important; }
+          .mb-1 { margin-bottom: 10pt !important; }
+          .mb-2 { margin-bottom: 20pt !important; }
+          .h-8 { height: 80pt !important; }
         }
       `}</style>
  
