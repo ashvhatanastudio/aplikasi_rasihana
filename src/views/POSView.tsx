@@ -214,7 +214,7 @@ export default function POSView() {
           #thermal-receipt { 
             display: block !important;
             width: 100% !important;
-            padding: 5% !important;
+            padding: 4% !important;
             margin: 0 !important;
             color: black !important;
             background: white !important;
@@ -226,32 +226,32 @@ export default function POSView() {
             font-family: 'Courier New', Courier, monospace !important;
             color: black !important;
           }
-          /* Font Sizes Optimized for A4-to-58mm Scaling */
-          .text-\[8px\] { font-size: 28pt !important; line-height: 1.2 !important; }
-          .text-\[10px\] { font-size: 34pt !important; line-height: 1.2 !important; }
-          .text-\[7px\] { font-size: 24pt !important; line-height: 1.1 !important; }
-          .text-\[9px\] { font-size: 32pt !important; line-height: 1.2 !important; }
-          .text-\[14px\] { font-size: 48pt !important; line-height: 1.1 !important; }
-          .text-sm { font-size: 40pt !important; line-height: 1.2 !important; }
+          /* Font RAKSASA agar saat di-scale down dari A4 ke 58mm tetap terlihat normal & tajam */
+          .text-\[8px\] { font-size: 32pt !important; line-height: 1.2 !important; }
+          .text-\[10px\] { font-size: 38pt !important; line-height: 1.2 !important; }
+          .text-\[7px\] { font-size: 28pt !important; line-height: 1.1 !important; }
+          .text-\[9px\] { font-size: 36pt !important; line-height: 1.2 !important; }
+          .text-\[14px\] { font-size: 54pt !important; line-height: 1.1 !important; }
+          .text-sm { font-size: 46pt !important; line-height: 1.2 !important; }
           
           .font-bold { font-weight: 900 !important; }
-          .border-dashed { border-top: 3pt dashed black !important; border-width: 0 !important; margin: 15pt 0 !important; }
-          .border-t { border-top: 3pt solid black !important; }
-          .border-b { border-bottom: 3pt solid black !important; }
-          .border-2 { border: 3pt solid black !important; }
+          .border-dashed { border-top: 4pt dashed black !important; border-width: 0 !important; margin: 12pt 0 !important; }
+          .border-t { border-top: 4pt solid black !important; }
+          .border-b { border-bottom: 4pt solid black !important; }
+          .border-2 { border: 4pt solid black !important; }
           .flex { display: flex !important; }
           .justify-between { justify-content: space-between !important; }
           .text-center { text-align: center !important; }
           .text-left { text-align: left !important; }
           .text-right { text-align: right !important; }
           .uppercase { text-transform: uppercase !important; }
-          .space-y-1 > * + * { margin-top: 5pt !important; }
-          .space-y-2 > * + * { margin-top: 10pt !important; }
-          .my-2 { margin-top: 20pt !important; margin-bottom: 20pt !important; }
-          .my-3 { margin-top: 30pt !important; margin-bottom: 30pt !important; }
-          .mb-1 { margin-bottom: 10pt !important; }
-          .mb-2 { margin-bottom: 20pt !important; }
-          .h-8 { height: 80pt !important; }
+          .space-y-1 > * + * { margin-top: 6pt !important; }
+          .space-y-2 > * + * { margin-top: 12pt !important; }
+          .my-2 { margin-top: 15pt !important; margin-bottom: 15pt !important; }
+          .my-3 { margin-top: 25pt !important; margin-bottom: 25pt !important; }
+          .mb-1 { margin-bottom: 8pt !important; }
+          .mb-2 { margin-bottom: 15pt !important; }
+          .h-8 { height: 60pt !important; }
         }
       `}</style>
       
