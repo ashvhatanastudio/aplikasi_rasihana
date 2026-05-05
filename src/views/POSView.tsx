@@ -303,8 +303,9 @@ export default function POSView() {
           }
           #thermal-receipt { 
             display: block !important;
-            width: 100% !important;
-            padding: 2% !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            padding: 40px !important;
             margin: 0 !important;
             color: black !important;
             background: white !important;
@@ -315,17 +316,17 @@ export default function POSView() {
             visibility: visible !important;
           }
           /* Font RAKSASA agar saat di-scale down dari A4 ke 58mm tetap terlihat normal & tajam */
-          .text-\[8px\] { font-size: 38pt !important; line-height: 1.2 !important; }
-          .text-\[10px\] { font-size: 46pt !important; line-height: 1.2 !important; }
-          .text-\[7px\] { font-size: 34pt !important; line-height: 1.1 !important; }
-          .text-\[9px\] { font-size: 42pt !important; line-height: 1.2 !important; }
-          .text-\[14px\] { font-size: 64pt !important; line-height: 1.1 !important; }
-          .text-sm { font-size: 52pt !important; line-height: 1.2 !important; }
-          .font-bold { font-weight: 800 !important; }
-          .border-dashed { border-top: 4pt dashed black !important; border-width: 0 !important; }
-          .border-t { border-top: 4pt solid black !important; }
-          .border-b { border-bottom: 4pt solid black !important; }
-          .border-2 { border: 4pt solid black !important; }
+          .text-\[8px\] { font-size: 60pt !important; line-height: 1.2 !important; }
+          .text-\[10px\] { font-size: 72pt !important; line-height: 1.2 !important; }
+          .text-\[7px\] { font-size: 50pt !important; line-height: 1.1 !important; }
+          .text-\[9px\] { font-size: 68pt !important; line-height: 1.2 !important; }
+          .text-\[14px\] { font-size: 96pt !important; line-height: 1.1 !important; }
+          .text-sm { font-size: 80pt !important; line-height: 1.2 !important; }
+          .font-bold { font-weight: 900 !important; }
+          .border-dashed { border-top: 6pt dashed black !important; border-width: 0 !important; }
+          .border-t { border-top: 6pt solid black !important; }
+          .border-b { border-bottom: 6pt solid black !important; }
+          .border-2 { border: 6pt solid black !important; }
           .flex { display: flex !important; }
           .justify-between { justify-content: space-between !important; }
         }
