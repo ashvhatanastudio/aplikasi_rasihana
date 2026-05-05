@@ -501,8 +501,8 @@ export default function ReportsView() {
           }
           #report-thermal-receipt { 
             display: block !important;
-            width: 100% !important;
-            padding: 5mm !important;
+            width: 58mm !important;
+            padding: 1.5mm !important;
             margin: 0 !important;
             position: absolute !important;
             left: 0 !important;
@@ -511,22 +511,23 @@ export default function ReportsView() {
             background: white !important;
             box-sizing: border-box;
             visibility: visible !important;
+            zoom: 3.6 !important;
           }
           #report-thermal-receipt * {
             visibility: visible !important;
           }
-          /* Ukuran font sangat besar agar saat di-scale down oleh printer thermal tetap terbaca jelas */
-          .text-[8px] { font-size: 28pt !important; line-height: 1.2 !important; }
-          .text-[10px] { font-size: 34pt !important; line-height: 1.2 !important; }
-          .text-[7px] { font-size: 24pt !important; line-height: 1.1 !important; }
-          .text-[9px] { font-size: 30pt !important; line-height: 1.2 !important; }
-          .text-[14px] { font-size: 48pt !important; line-height: 1.1 !important; }
-          .text-sm { font-size: 38pt !important; line-height: 1.2 !important; }
+          /* Ukuran font standar yang akan ikut ter-zoom agar tajam */
+          .text-[8px] { font-size: 8pt !important; line-height: 1.2 !important; }
+          .text-[10px] { font-size: 10pt !important; line-height: 1.2 !important; }
+          .text-[7px] { font-size: 7pt !important; line-height: 1.1 !important; }
+          .text-[9px] { font-size: 9pt !important; line-height: 1.2 !important; }
+          .text-[14px] { font-size: 14pt !important; line-height: 1.1 !important; }
+          .text-sm { font-size: 12pt !important; line-height: 1.2 !important; }
           .font-bold { font-weight: 700 !important; }
-          .border-dashed { border-top: 3pt dashed black !important; border-width: 0 !important; }
-          .border-t { border-top: 3pt solid black !important; }
-          .border-b { border-bottom: 3pt solid black !important; }
-          .border-2 { border: 4pt solid black !important; }
+          .border-dashed { border-top: 0.5pt dashed black !important; border-width: 0 !important; }
+          .border-t { border-top: 0.5pt solid black !important; }
+          .border-b { border-bottom: 0.5pt solid black !important; }
+          .border-2 { border: 0.5pt solid black !important; }
         }
       `}</style>
 
