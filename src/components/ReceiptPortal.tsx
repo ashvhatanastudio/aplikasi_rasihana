@@ -78,6 +78,10 @@ export default function ReceiptPortal({ open, onOpenChange, data, onPrint }: Rec
                <span>{data.customerWA}</span>
              </div>
              <div className="flex justify-between border-b-4 border-gray-100 pb-3">
+               <span>ALAMAT   :</span>
+               <span className="text-right max-w-[200px]">{data.customerAddress || '-'}</span>
+             </div>
+             <div className="flex justify-between border-b-4 border-gray-100 pb-3">
                <span>ESTIMASI :</span>
                <span className="font-bold">{data.estimatedCompletedAt ? new Date(data.estimatedCompletedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}</span>
              </div>

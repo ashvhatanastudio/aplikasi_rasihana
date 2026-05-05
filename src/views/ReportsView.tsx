@@ -686,6 +686,10 @@ export default function ReportsView() {
                  <span>{printData?.customerWA}</span>
                </div>
                <div className="flex justify-between border-b-4 border-gray-100 pb-3">
+                 <span>ALAMAT     :</span>
+                 <span className="text-right max-w-[220px]">{printData?.customerAddress || '-'}</span>
+               </div>
+               <div className="flex justify-between border-b-4 border-gray-100 pb-3">
                  <span>PENGAMBILAN:</span>
                  <span className="font-bold print-bold">{printData?.estimatedCompletedAt}</span>
                </div>

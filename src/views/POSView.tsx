@@ -616,6 +616,10 @@ export default function POSView() {
                  <span>{lastTransaction?.customerWA}</span>
                </div>
                <div className="flex justify-between border-b-4 border-gray-100 pb-3">
+                 <span>ALAMAT   :</span>
+                 <span className="text-right max-w-[220px]">{lastTransaction?.customerAddress || '-'}</span>
+               </div>
+               <div className="flex justify-between border-b-4 border-gray-100 pb-3">
                  <span>ESTIMASI :</span>
                  <span className="font-bold print-bold">{lastTransaction?.estimatedCompletedAt}</span>
                </div>
