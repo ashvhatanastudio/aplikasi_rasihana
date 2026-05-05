@@ -96,23 +96,34 @@ export default function POSView() {
 
   const handleCheckout = async (payNow: boolean = true) => {
     if (!customerId) return toast.error('Pilih pelanggan terlebih dahulu');
-    if (cart.length === 0) return toast.error('Keranjang masih kosong');
+    
+    // Booking (payNow=false) allows empty cart, but Payment (payNow=true) requires items
+    if (payNow && cart.length === 0) return toast.error('Keranjang masih kosong untuk pembayaran');
     if (!user) return toast.error('Sesi login berakhir. Silakan login kembali.');
 
     setIsSubmitting(true);
     
     try {
+      // Use placeholder if cart is empty during booking
+      const finalCart = cart.length > 0 ? cart : [
+        { id: 'placeholder', name: 'LAYANAN (BERAT MENYUSUL)', price: 0, qty: 1, unit: 'KG', category: 'BOOKING' }
+      ];
+
+      const finalSubtotal = finalCart.reduce((acc, item) => acc + item.price * item.qty, 0);
+      const finalTax = isTaxEnabled ? finalSubtotal * 0.11 : 0;
+      const finalGrandTotal = finalSubtotal + finalTax - discount;
+
       const txPayload: any = {
         customer_id: customerId,
         kasir_id: user.id,
-        total_qty: cart.reduce((acc, i) => acc + i.qty, 0),
-        subtotal: subtotal,
+        total_qty: finalCart.reduce((acc, i) => acc + i.qty, 0),
+        subtotal: finalSubtotal,
         discount: discount,
-        tax: taxAmount,
-        total_bayar: grandTotal,
+        tax: finalTax,
+        total_bayar: finalGrandTotal,
         metode_pembayaran: payNow ? paymentMethod : 'PENDING',
-        uang_dibayar: payNow ? (paymentMethod === 'Tunai' ? amountPaid : grandTotal) : 0,
-        kembalian: payNow ? (paymentMethod === 'Tunai' ? Math.max(0, amountPaid - grandTotal) : 0) : 0,
+        uang_dibayar: payNow ? (paymentMethod === 'Tunai' ? amountPaid : finalGrandTotal) : 0,
+        kembalian: payNow ? (paymentMethod === 'Tunai' ? Math.max(0, amountPaid - finalGrandTotal) : 0) : 0,
         status: payNow ? 'COMPLETED' : 'PROCESSING',
         payment_status: payNow ? 'PAID' : 'UNPAID',
         laundry_status: 'RECEIVED',
@@ -130,9 +141,9 @@ export default function POSView() {
       if (txError) throw txError;
 
       // 2. Transaction Items
-      const details = cart.map(item => ({
+      const details = finalCart.map(item => ({
         transaction_id: transaction.id,
-        product_id: item.id,
+        product_id: item.id === 'placeholder' ? null : item.id,
         qty: item.qty,
         price: item.price,
         subtotal: item.price * item.qty
@@ -149,7 +160,7 @@ export default function POSView() {
         uang_dibayar: transaction.uang_dibayar,
         kembalian: transaction.kembalian,
         payment_status: txPayload.payment_status,
-        items: [...cart],
+        items: finalCart,
         customerName: customerData?.name || 'PELANGGAN',
         customerWA: customerData?.whatsapp || '-',
         customerAddress: customerData?.address || '-',
@@ -423,7 +434,7 @@ export default function POSView() {
                 <Button 
                   variant="outline"
                   className="w-full h-12 text-sm font-bold uppercase tracking-widest border-slate-200 hover:bg-slate-50"
-                  disabled={isSubmitting || cart.length === 0 || !customerId}
+                  disabled={isSubmitting || !customerId}
                   onClick={() => handleCheckout(false)}
                 >
                   {isSubmitting ? (
@@ -435,7 +446,7 @@ export default function POSView() {
                 </Button>
                 <Button 
                   className="w-full bg-white text-slate-900 hover:bg-slate-100 h-12 text-sm font-bold uppercase tracking-widest shadow-xl"
-                  disabled={isSubmitting || cart.length === 0 || !customerId || (paymentMethod === 'Tunai' && amountPaid < grandTotal)}
+                  disabled={isSubmitting || cart.length === 0 || !customerId || (paymentMethod === 'Tunai' && amountPaid < (subtotal + (isTaxEnabled ? subtotal * 0.11 : 0) - discount))}
                   onClick={() => handleCheckout(true)}
                 >
                   {isSubmitting ? (
