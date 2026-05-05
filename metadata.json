@@ -1,6 +1,6 @@
 {
-  "name": "Setrika POS & Order Management",
-  "description": "Aplikasi POS & Manajemen Pemesanan Jasa Setrika dengan fitur PWA, laporan komprehensif, dan manajemen multi-role.",
+  "name": "Setrika Rasihana POS",
+  "description": "Aplikasi POS & Manajemen Pemesanan Jasa Setrika Rasihana dengan fitur PWA, laporan komprehensif, dan manajemen multi-role.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

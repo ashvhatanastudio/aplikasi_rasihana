@@ -58,7 +58,7 @@ export default function ReceiptPortal({ open, onOpenChange, data, onPrint }: Rec
           </div>
 
           <div className="text-center mb-10">
-            <h2 className="font-bold text-4xl uppercase tracking-tighter">SETRIKA.OS</h2>
+            <h2 className="font-bold text-4xl uppercase tracking-tighter">JASA SETRIKA RASIHANA</h2>
             <p className="text-lg font-bold uppercase tracking-widest">Premium Garment Care Service</p>
           </div>
 

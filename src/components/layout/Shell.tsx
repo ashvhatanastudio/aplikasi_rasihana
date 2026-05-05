@@ -49,10 +49,10 @@ export default function Shell({ children, activeId, setActiveId, userRole }: She
         <div className="p-6">
           <div className="flex items-center gap-3 px-2">
             <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-lg shadow-slate-200">
-               S
+               R
             </div>
             <div>
-              <h1 className="text-sm font-black tracking-tighter text-slate-900 uppercase">SETRIKA.OS</h1>
+              <h1 className="text-sm font-black tracking-tighter text-slate-900 uppercase">JASA SETRIKA RASIHANA</h1>
               <p className="text-[10px] text-slate-400 font-bold tracking-widest leading-none">CORE ENGINE V2</p>
             </div>
           </div>
@@ -155,8 +155,8 @@ export default function Shell({ children, activeId, setActiveId, userRole }: She
             >
               <div className="p-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black">S</div>
-                  <h1 className="text-sm font-black tracking-tighter">SETRIKA.OS</h1>
+                  <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black">R</div>
+                  <h1 className="text-sm font-black tracking-tighter">JASA SETRIKA RASIHANA</h1>
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
                   <X className="w-5 h-5" />
