@@ -515,18 +515,18 @@ export default function ReportsView() {
             color: black !important;
           }
           /* Font Sizes Optimized for A4-to-58mm Scaling */
-          .text-\[8px\] { font-size: 38pt !important; line-height: 1.2 !important; }
-          .text-\[10px\] { font-size: 46pt !important; line-height: 1.2 !important; }
-          .text-\[7px\] { font-size: 32pt !important; line-height: 1.1 !important; }
-          .text-\[9px\] { font-size: 42pt !important; line-height: 1.2 !important; }
-          .text-\[14px\] { font-size: 64pt !important; line-height: 1.1 !important; }
-          .text-sm { font-size: 52pt !important; line-height: 1.2 !important; }
+          .text-\[8px\] { font-size: 28pt !important; line-height: 1.2 !important; }
+          .text-\[10px\] { font-size: 34pt !important; line-height: 1.2 !important; }
+          .text-\[7px\] { font-size: 24pt !important; line-height: 1.1 !important; }
+          .text-\[9px\] { font-size: 32pt !important; line-height: 1.2 !important; }
+          .text-\[14px\] { font-size: 48pt !important; line-height: 1.1 !important; }
+          .text-sm { font-size: 40pt !important; line-height: 1.2 !important; }
           
           .font-bold { font-weight: 900 !important; }
-          .border-dashed { border-top: 4pt dashed black !important; border-width: 0 !important; margin: 20pt 0 !important; }
-          .border-t { border-top: 4pt solid black !important; }
-          .border-b { border-bottom: 4pt solid black !important; }
-          .border-2 { border: 4pt solid black !important; }
+          .border-dashed { border-top: 3pt dashed black !important; border-width: 0 !important; margin: 15pt 0 !important; }
+          .border-t { border-top: 3pt solid black !important; }
+          .border-b { border-bottom: 3pt solid black !important; }
+          .border-2 { border: 3pt solid black !important; }
           .flex { display: flex !important; }
           .justify-between { justify-content: space-between !important; }
           .text-center { text-align: center !important; }

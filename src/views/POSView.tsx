@@ -192,96 +192,6 @@ export default function POSView() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full max-w-7xl mx-auto relative">
-      {/* Thermal Receipt Template - Only visible during printing */}
-      <div id="thermal-receipt" className="hidden print:block bg-white text-black font-mono">
-        <div className="w-[58mm] mx-auto text-center">
-          <h2 className="font-bold text-sm uppercase tracking-tighter">KASIR JASA SETRIKA</h2>
-          <p className="text-[8px] leading-tight mb-1">Cucian Rapi, Transaksi Beres</p>
-          <div className="border-t border-dashed border-black my-1"></div>
-          
-          <h3 className="text-[10px] font-bold uppercase mb-1">
-            {lastTransaction?.isTagOnly ? 'LABEL PENANDA PESANAN' : 
-             lastTransaction?.payment_status === 'PAID' ? 'Struk Pembayaran' : 'Struk Order / Tag Pengambilan'}
-          </h3>
-          
-          <div className="flex justify-between text-[8px] font-bold">
-            <span>INV:</span>
-            <span>{lastTransaction?.invoice_number}</span>
-          </div>
-          <div className="flex justify-between text-[8px] mb-1">
-            <span>TGL:</span>
-            <span>{lastTransaction?.date}</span>
-          </div>
-          <div className="flex justify-between text-[8px] mb-1">
-            <span>PLG:</span>
-            <span className="truncate max-w-[80px] uppercase font-bold text-[10px]">{lastTransaction?.customerName}</span>
-          </div>
-          <div className="flex justify-between text-[8px] mb-1">
-            <span>ALM:</span>
-            <span className="truncate max-w-[80px] text-[7px] text-right">{lastTransaction?.customerAddress}</span>
-          </div>
-
-          <div className="border-t border-dashed border-black my-1"></div>
-
-          {lastTransaction?.isTagOnly ? (
-            <div className="py-2 border-2 border-black my-2">
-              <p className="text-[14px] font-bold uppercase leading-none">{lastTransaction?.customerName}</p>
-              <div className="border-t border-black my-1 mx-2"></div>
-              <p className="text-[8px] px-1 font-bold">ALAMAT PENGANTARAN:</p>
-              <p className="text-[9px] px-1 italic leading-tight">{lastTransaction?.customerAddress}</p>
-              <p className="text-[7px] mt-2 italic px-1 opacity-70">LABEL PENANDA PESANAN</p>
-            </div>
-          ) : (
-            <>
-              {lastTransaction?.items.map((item: any, i: number) => (
-                <div key={i} className="mb-1">
-                  <div className="text-[8px] text-left uppercase font-bold leading-none">{item.name}</div>
-                  <div className="flex justify-between text-[8px]">
-                    <span>{item.qty} x {item.price.toLocaleString()}</span>
-                    <span>{(item.qty * item.price).toLocaleString()}</span>
-                  </div>
-                </div>
-              ))}
-
-              <div className="border-t border-dashed border-black my-1"></div>
-              
-              <div className="flex justify-between text-[10px] font-bold">
-                <span>TOTAL:</span>
-                <span>{lastTransaction?.total_bayar?.toLocaleString('id-ID')}</span>
-              </div>
-            </>
-          )}
-          
-          {!lastTransaction?.isTagOnly && (
-            lastTransaction?.payment_status === 'PAID' ? (
-              <>
-                <div className="flex justify-between text-[8px]">
-                  <span>BAYAR:</span>
-                  <span>{lastTransaction?.uang_dibayar?.toLocaleString('id-ID')}</span>
-                </div>
-                <div className="flex justify-between text-[8px]">
-                  <span>KEMBALI:</span>
-                  <span>{lastTransaction?.kembalian?.toLocaleString('id-ID')}</span>
-                </div>
-                <div className="flex justify-between text-[7px] mt-1 space-x-1">
-                  <span className="bg-black text-white px-1">LUNAS</span>
-                  <span className="italic uppercase">{lastTransaction?.metode_pembayaran}</span>
-                </div>
-              </>
-            ) : (
-              <div className="mt-2 text-center border border-black p-1">
-                <p className="text-[8px] font-bold uppercase">Belum Bayar</p>
-                <p className="text-[7px]">Bawa struk ini saat pengambilan</p>
-              </div>
-            )
-          )}
-
-          <div className="border-t border-dashed border-black my-2"></div>
-          <p className="text-[7px] leading-none mb-1 uppercase italic">Terima Kasih Telah Menggunakan Jasa Kami</p>
-          <div className="h-6"></div>
-        </div>
-      </div>
-
       <style>{`
         @media print {
           @page {
@@ -317,18 +227,18 @@ export default function POSView() {
             color: black !important;
           }
           /* Font Sizes Optimized for A4-to-58mm Scaling */
-          .text-\[8px\] { font-size: 38pt !important; line-height: 1.2 !important; }
-          .text-\[10px\] { font-size: 46pt !important; line-height: 1.2 !important; }
-          .text-\[7px\] { font-size: 32pt !important; line-height: 1.1 !important; }
-          .text-\[9px\] { font-size: 42pt !important; line-height: 1.2 !important; }
-          .text-\[14px\] { font-size: 64pt !important; line-height: 1.1 !important; }
-          .text-sm { font-size: 52pt !important; line-height: 1.2 !important; }
+          .text-\[8px\] { font-size: 28pt !important; line-height: 1.2 !important; }
+          .text-\[10px\] { font-size: 34pt !important; line-height: 1.2 !important; }
+          .text-\[7px\] { font-size: 24pt !important; line-height: 1.1 !important; }
+          .text-\[9px\] { font-size: 32pt !important; line-height: 1.2 !important; }
+          .text-\[14px\] { font-size: 48pt !important; line-height: 1.1 !important; }
+          .text-sm { font-size: 40pt !important; line-height: 1.2 !important; }
           
           .font-bold { font-weight: 900 !important; }
-          .border-dashed { border-top: 4pt dashed black !important; border-width: 0 !important; margin: 20pt 0 !important; }
-          .border-t { border-top: 4pt solid black !important; }
-          .border-b { border-bottom: 4pt solid black !important; }
-          .border-2 { border: 4pt solid black !important; }
+          .border-dashed { border-top: 3pt dashed black !important; border-width: 0 !important; margin: 15pt 0 !important; }
+          .border-t { border-top: 3pt solid black !important; }
+          .border-b { border-bottom: 3pt solid black !important; }
+          .border-2 { border: 3pt solid black !important; }
           .flex { display: flex !important; }
           .justify-between { justify-content: space-between !important; }
           .text-center { text-align: center !important; }
