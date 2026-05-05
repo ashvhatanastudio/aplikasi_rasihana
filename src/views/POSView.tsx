@@ -514,54 +514,69 @@ export default function POSView() {
       {/* CSS For Printing */}
       <style>{`
         @media print {
-          @page { size: auto; margin: 5mm; }
-          html, body { 
-            width: 100%; 
-            margin: 0; 
-            padding: 0; 
-            background: white; 
-            -webkit-print-color-adjust: exact;
-            font-size: 14px; 
+          @page { 
+            size: auto; 
+            margin: 0mm; 
           }
-          #root, .fixed, dialog { display: none !important; }
+          html, body { 
+            width: 100% !important; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            background: white !important; 
+            -webkit-print-color-adjust: exact;
+          }
+          #root, .fixed, dialog, [role="dialog"] { display: none !important; }
           #thermal-receipt { 
             display: block !important; 
-            width: 100%;
-            max-width: 80mm; 
-            margin: 0 auto;
-            padding: 4mm; 
+            width: 90% !important;
+            max-width: 100mm !important; 
+            margin: 10mm auto !important;
+            padding: 5mm !important; 
             box-sizing: border-box;
             background: white;
             color: black;
+            font-size: 16px !important; /* Ukuran font diperbesar */
+            line-height: 1.4 !important;
           }
           .print-bold { font-weight: 900 !important; }
+          .print-lg { font-size: 20px !important; }
+          .print-sm { font-size: 14px !important; }
         }
       `}</style>
 
       {/* Thermal Template Portal - Optimized for better readability */}
       {typeof document !== 'undefined' && createPortal(
-         <div id="thermal-receipt" className="hidden font-mono text-[12px] text-black leading-tight">
-            <div className="text-center mb-4">
-              <h2 className="font-bold text-lg tracking-tighter uppercase print-bold">SETRIKA.OS</h2>
-              <p className="text-[10px] font-bold uppercase tracking-widest">Premium Garment Care</p>
-              <div className="border-t border-dashed border-black my-2" />
-              <p className="font-bold text-sm print-bold">{lastTransaction?.invoice_number}</p>
-              <p className="text-[10px]">{lastTransaction?.date}</p>
+         <div id="thermal-receipt" className="hidden font-mono text-black">
+            <div className="text-center mb-6">
+              <h2 className="font-bold text-2xl tracking-tighter uppercase print-bold print-lg">SETRIKA.OS</h2>
+              <p className="text-xs font-bold uppercase tracking-widest">Premium Garment Care</p>
+              <div className="border-t-2 border-dashed border-black my-4" />
+              <p className="font-bold text-lg print-bold">{lastTransaction?.invoice_number}</p>
+              <p className="text-sm">{lastTransaction?.date}</p>
             </div>
 
-            <div className="space-y-1.5 mb-4 text-[11px]">
-               <div className="flex justify-between"><span>CUST:</span><span className="font-bold print-bold">{lastTransaction?.customerName}</span></div>
-               <div className="flex justify-between"><span>TELP:</span><span>{lastTransaction?.customerWA}</span></div>
-               <div className="flex justify-between"><span>EST :</span><span className="font-bold print-bold">{lastTransaction?.estimatedCompletedAt}</span></div>
+            <div className="space-y-2 mb-6 text-sm">
+               <div className="flex justify-between border-b border-gray-100 pb-1">
+                 <span>PELANGGAN:</span>
+                 <span className="font-bold print-bold">{lastTransaction?.customerName}</span>
+               </div>
+               <div className="flex justify-between border-b border-gray-100 pb-1">
+                 <span>WHATSAPP :</span>
+                 <span>{lastTransaction?.customerWA}</span>
+               </div>
+               <div className="flex justify-between border-b border-gray-100 pb-1">
+                 <span>ESTIMASI :</span>
+                 <span className="font-bold print-bold">{lastTransaction?.estimatedCompletedAt}</span>
+               </div>
             </div>
 
-            <div className="border-t border-dashed border-black my-2" />
+            <div className="border-t-2 border-dashed border-black my-4" />
             
-            <div className="space-y-2 mb-4">
+            <div className="space-y-3 mb-6">
                {lastTransaction?.items.map((item: any, i: number) => (
-                 <div key={i}>
-                    <div className="uppercase font-bold text-[11px] print-bold">{item.name}</div>
-                    <div className="flex justify-between text-[11px]">
+                 <div key={i} className="border-b border-dashed border-gray-200 pb-2 last:border-0">
+                    <div className="uppercase font-bold text-sm print-bold">{item.name}</div>
+                    <div className="flex justify-between text-sm mt-1">
                        <span>{item.qty} {item.unit} x {item.price.toLocaleString()}</span>
                        <span className="font-bold print-bold">{(item.qty * item.price).toLocaleString()}</span>
                     </div>
@@ -569,24 +584,40 @@ export default function POSView() {
                ))}
             </div>
 
-            <div className="border-t border-dashed border-black my-2" />
+            <div className="border-t-2 border-dashed border-black my-4" />
             
-            <div className="space-y-1.5 text-[11px]">
-               <div className="flex justify-between font-bold text-sm print-bold"><span>TOTAL:</span><span>{lastTransaction?.total_bayar.toLocaleString()}</span></div>
-               <div className="flex justify-between"><span>BAYAR:</span><span>{lastTransaction?.uang_dibayar.toLocaleString()}</span></div>
-               <div className="flex justify-between"><span>KEMBALI:</span><span>{lastTransaction?.kembalian.toLocaleString()}</span></div>
-               <div className="flex justify-between"><span>METODE:</span><span className="uppercase">{lastTransaction?.metode_pembayaran}</span></div>
+            <div className="space-y-2 mb-6 text-sm">
+               <div className="flex justify-between font-bold text-xl print-bold py-2 border-b-2 border-black">
+                 <span>TOTAL:</span>
+                 <span>{lastTransaction?.total_bayar.toLocaleString()}</span>
+               </div>
+               <div className="flex justify-between pt-2">
+                 <span>BAYAR :</span>
+                 <span>{lastTransaction?.uang_dibayar.toLocaleString()}</span>
+               </div>
+               <div className="flex justify-between font-bold print-bold">
+                 <span>KEMBALI:</span>
+                 <span>{lastTransaction?.kembalian.toLocaleString()}</span>
+               </div>
+               <div className="flex justify-between text-xs opacity-70">
+                 <span>METODE :</span>
+                 <span className="uppercase">{lastTransaction?.metode_pembayaran}</span>
+               </div>
             </div>
 
             {lastTransaction?.notes && (
-              <div className="mt-4 text-[10px] italic border-2 border-dashed p-2 border-black">
-                NOTES: {lastTransaction.notes}
+              <div className="mt-4 text-sm italic border-2 border-dashed p-3 border-black bg-gray-50">
+                <span className="font-bold not-italic">CATATAN:</span> {lastTransaction.notes}
               </div>
             )}
 
-            <div className="mt-8 text-center text-[9px] uppercase font-bold leading-relaxed border-t border-black pt-4">
-               TERIMA KASIH TELAH MEMILIH KAMI.<br/>
-               SIMPAN STRUK INI UNTUK PENGAMBILAN.
+            <div className="mt-10 text-center space-y-3 border-t-2 border-black pt-6">
+               <p className="uppercase font-bold text-sm leading-relaxed print-bold">
+                  TERIMA KASIH TELAH MEMILIH KAMI.<br/>
+                  STRUK INI ADALAH TANDA TERIMA SAH.
+               </p>
+               <p className="text-xs italic">Simpan struk untuk pengambilan laundry Anda.</p>
+               <div className="h-10" />
             </div>
          </div>,
          document.body

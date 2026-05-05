@@ -374,56 +374,70 @@ export default function ReportsView() {
       {/* Print Overlay CSS */}
       <style>{`
         @media print {
-          @page { size: auto; margin: 5mm; }
+          @page { 
+            size: auto; 
+            margin: 0mm; 
+          }
           html, body { 
             width: 100% !important; 
             margin: 0 !important; 
             padding: 0 !important; 
             background: white !important; 
             -webkit-print-color-adjust: exact;
-            font-size: 14px;
           }
           #root, .fixed, dialog, [role="dialog"] { display: none !important; }
           #report-thermal-receipt { 
             display: block !important; 
-            width: 100% !important; 
-            max-width: 80mm !important;
-            margin: 0 auto !important;
-            padding: 4mm !important; 
+            width: 90% !important;
+            max-width: 100mm !important; 
+            margin: 10mm auto !important;
+            padding: 5mm !important; 
             visibility: visible !important;
             background: white !important;
             color: black !important;
             box-sizing: border-box;
+            font-size: 16px !important;
+            line-height: 1.4 !important;
           }
           #report-thermal-receipt * { visibility: visible !important; }
           .print-bold { font-weight: 900 !important; }
+          .print-lg { font-size: 20px !important; }
         }
       `}</style>
 
       {/* Thermal Template Portal - Optimized for better readability */}
       {typeof document !== 'undefined' && createPortal(
-         <div id="report-thermal-receipt" className="hidden font-mono text-[12px] text-black leading-tight">
-            <div className="text-center mb-4">
-              <h2 className="font-bold text-lg uppercase tracking-tighter print-bold">SETRIKA.OS</h2>
-              <p className="text-[10px] font-bold uppercase tracking-widest">Premium Garment Care</p>
-              <div className="border-t border-dashed border-black my-2" />
-              <p className="font-bold text-sm print-bold">{printData?.invoice_number}</p>
-              <p className="text-[10px] italic">{printData?.date}</p>
+         <div id="report-thermal-receipt" className="hidden font-mono text-black leading-tight">
+            <div className="text-center mb-6">
+              <h2 className="font-bold text-2xl uppercase tracking-tighter print-bold print-lg">SETRIKA.OS</h2>
+              <p className="text-xs font-bold uppercase tracking-widest">Premium Garment Care</p>
+              <div className="border-t-2 border-dashed border-black my-4" />
+              <p className="font-bold text-lg print-bold">{printData?.invoice_number}</p>
+              <p className="text-sm italic">{printData?.date}</p>
             </div>
 
-            <div className="space-y-1.5 mb-4 text-[11px]">
-               <div className="flex justify-between"><span>CLIENT:</span><span className="font-bold uppercase truncate max-w-[120px] print-bold">{printData?.customerName}</span></div>
-               <div className="flex justify-between"><span>TELP  :</span><span>{printData?.customerWA}</span></div>
-               <div className="flex justify-between"><span>TARGET:</span><span className="font-bold print-bold">{printData?.estimatedCompletedAt}</span></div>
+            <div className="space-y-2 mb-6 text-sm">
+               <div className="flex justify-between border-b border-gray-100 pb-1">
+                 <span>PELANGGAN:</span>
+                 <span className="font-bold uppercase truncate max-w-[150px] print-bold">{printData?.customerName}</span>
+               </div>
+               <div className="flex justify-between border-b border-gray-100 pb-1">
+                 <span>WHATSAPP :</span>
+                 <span>{printData?.customerWA}</span>
+               </div>
+               <div className="flex justify-between border-b border-gray-100 pb-1">
+                 <span>PENGAMBILAN:</span>
+                 <span className="font-bold print-bold">{printData?.estimatedCompletedAt}</span>
+               </div>
             </div>
 
-            <div className="border-t border-dashed border-black my-2" />
+            <div className="border-t-2 border-dashed border-black my-4" />
             
-            <div className="space-y-2 mb-4">
+            <div className="space-y-3 mb-6">
                {printData?.items.map((item: any, i: number) => (
-                 <div key={i} className="text-[11px]">
-                    <div className="uppercase font-bold leading-tight print-bold">{item.name}</div>
-                    <div className="flex justify-between">
+                 <div key={i} className="border-b border-dashed border-gray-200 pb-2 last:border-0">
+                    <div className="uppercase font-bold text-sm leading-tight print-bold">{item.name}</div>
+                    <div className="flex justify-between text-sm mt-1">
                        <span>{item.qty} × {item.price.toLocaleString()}</span>
                        <span className="font-bold print-bold">{(item.qty * item.price).toLocaleString()}</span>
                     </div>
@@ -431,25 +445,37 @@ export default function ReportsView() {
                ))}
             </div>
 
-            <div className="border-t border-dashed border-black my-2" />
+            <div className="border-t-2 border-dashed border-black my-4" />
             
-            <div className="space-y-1.5 mb-4 text-[11px]">
-               <div className="flex justify-between font-bold text-sm print-bold"><span>GRAND TOTAL:</span><span>{printData?.total_bayar.toLocaleString()}</span></div>
-               <div className="flex justify-between text-[10px] opacity-80"><span>METODE:</span><span className="uppercase">{printData?.metode_pembayaran}</span></div>
-               <div className="flex justify-between text-[10px] opacity-80"><span>STATUS:</span><span className="font-bold italic uppercase print-bold">{printData?.payment_status === 'PAID' ? 'LUNAS' : 'BELUM BAYAR'}</span></div>
+            <div className="space-y-2 mb-6 text-sm">
+               <div className="flex justify-between font-bold text-xl print-bold py-2 border-b-2 border-black">
+                 <span>GRAND TOTAL:</span>
+                 <span>{printData?.total_bayar.toLocaleString()}</span>
+               </div>
+               <div className="flex justify-between pt-2">
+                 <span>METODE  :</span>
+                 <span className="uppercase">{printData?.metode_pembayaran}</span>
+               </div>
+               <div className="flex justify-between font-bold print-bold">
+                 <span>STATUS  :</span>
+                 <span className="italic uppercase">{printData?.payment_status === 'PAID' ? 'LUNAS' : 'BELUM BAYAR'}</span>
+               </div>
             </div>
 
             {printData?.notes && (
-              <div className="mt-4 text-[10px] italic border-2 border-dashed p-2 border-black">
-                <span className="font-bold not-italic">NOTES:</span> {printData.notes}
+              <div className="mt-4 text-sm italic border-2 border-dashed p-3 border-black bg-gray-50">
+                <span className="font-bold not-italic uppercase">Catatan:</span> {printData.notes}
               </div>
             )}
 
-            <div className="mt-8 text-center text-[9px] space-y-2 border-t border-black pt-4">
-               <p className="uppercase font-bold leading-relaxed">TERIMA KASIH TELAH PERCAYA KEPADA KAMI.<br/>SIMPAN STRUK INI UNTUK PENGAMBILAN.</p>
-               <p className="opacity-70 font-bold tracking-widest">• CORE ENGINE OPERATIONAL MODULE •</p>
+            <div className="mt-10 text-center space-y-3 border-t-2 border-black pt-6">
+               <p className="uppercase font-bold text-sm leading-relaxed print-bold">
+                 TERIMA KASIH ATAS KEPERCAYAAN ANDA.<br/>
+                 STRUK INI DIGUNAKAN UNTUK PENGAMBILAN.
+               </p>
+               <p className="opacity-70 text-[10px] font-bold tracking-widest uppercase">Operated by Core Engine Module</p>
+               <div className="h-10" />
             </div>
-            <div className="h-10" />
          </div>,
          document.body
       )}
