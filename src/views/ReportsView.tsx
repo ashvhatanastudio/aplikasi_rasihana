@@ -483,15 +483,14 @@ export default function ReportsView() {
       <style>{`
         @media print {
           @page {
-            size: auto;
-            margin: 0 !important;
+            size: 58mm auto;
+            margin: 0;
           }
           html, body {
-            width: 100% !important;
+            width: 58mm !important;
             margin: 0 !important;
             padding: 0 !important;
             background: white !important;
-            overflow: visible !important;
           }
           #root {
             display: none !important;
@@ -501,9 +500,8 @@ export default function ReportsView() {
           }
           #report-thermal-receipt { 
             display: block !important;
-            width: 100vw !important;
-            max-width: 100vw !important;
-            padding: 40px !important;
+            width: 58mm !important;
+            padding: 2mm !important;
             margin: 0 !important;
             color: black !important;
             background: white !important;
@@ -512,21 +510,27 @@ export default function ReportsView() {
           }
           #report-thermal-receipt * {
             visibility: visible !important;
+            font-family: 'Courier New', Courier, monospace !important;
           }
-          /* Font RAKSASA agar saat di-scale down dari A4 ke 58mm tetap terlihat normal & tajam */
-          .text-\[8px\] { font-size: 60pt !important; line-height: 1.2 !important; }
-          .text-\[10px\] { font-size: 72pt !important; line-height: 1.2 !important; }
-          .text-\[7px\] { font-size: 50pt !important; line-height: 1.1 !important; }
-          .text-\[9px\] { font-size: 68pt !important; line-height: 1.2 !important; }
-          .text-\[14px\] { font-size: 96pt !important; line-height: 1.1 !important; }
-          .text-sm { font-size: 80pt !important; line-height: 1.2 !important; }
-          .font-bold { font-weight: 900 !important; }
-          .border-dashed { border-top: 6pt dashed black !important; border-width: 0 !important; }
-          .border-t { border-top: 6pt solid black !important; }
-          .border-b { border-bottom: 6pt solid black !important; }
-          .border-2 { border: 6pt solid black !important; }
+          /* Font Sizes Optimized for 58mm Thermal Printer */
+          .text-\[8px\] { font-size: 8pt !important; line-height: 1.2 !important; }
+          .text-\[10px\] { font-size: 10pt !important; line-height: 1.2 !important; }
+          .text-\[7px\] { font-size: 7pt !important; line-height: 1.1 !important; }
+          .text-\[9px\] { font-size: 9pt !important; line-height: 1.2 !important; }
+          .text-\[14px\] { font-size: 14pt !important; line-height: 1.1 !important; }
+          .text-sm { font-size: 12pt !important; line-height: 1.2 !important; }
+          
+          .font-bold { font-weight: bold !important; }
+          .border-dashed { border-top: 0.5pt dashed black !important; border-width: 0 !important; }
+          .border-t { border-top: 0.5pt solid black !important; }
+          .border-b { border-bottom: 0.5pt solid black !important; }
+          .border-2 { border: 0.5pt solid black !important; }
           .flex { display: flex !important; }
           .justify-between { justify-content: space-between !important; }
+          .text-center { text-align: center !important; }
+          .text-left { text-align: left !important; }
+          .text-right { text-align: right !important; }
+          .uppercase { text-transform: uppercase !important; }
         }
       `}</style>
  
@@ -534,75 +538,81 @@ export default function ReportsView() {
       {typeof document !== 'undefined' && createPortal(
         <div id="report-thermal-receipt" className="hidden print:block bg-white text-black font-mono">
           <div className="w-full text-center">
-            <h2 className="font-bold text-sm uppercase tracking-tighter">KASIR JASA SETRIKA</h2>
-            <p className="text-[8px] leading-tight mb-1">Cucian Rapi, Transaksi Beres</p>
-            <div className="border-t border-dashed border-black my-1"></div>
+            <h2 className="font-bold text-sm uppercase">KASIR JASA SETRIKA</h2>
+            <p className="text-[8px] mb-1">Cucian Rapi, Transaksi Beres</p>
             
-            <h3 className="text-[10px] font-bold uppercase mb-1">
-              {printData?.payment_status === 'PAID' ? 'Struk Pembayaran' : 'Struk Order / Tag Pengambilan'}
+            <div className="border-t border-dashed border-black my-2"></div>
+            
+            <h3 className="text-[10px] font-bold uppercase mb-2">
+              {printData?.payment_status === 'PAID' ? 'STRUK PEMBAYARAN' : 'STRUK ORDER / TAG PENAMBILAN'}
             </h3>
             
-            <div className="flex justify-between text-[8px] font-bold">
-              <span>INV:</span>
-              <span>{printData?.invoice_number}</span>
-            </div>
-            <div className="flex justify-between text-[8px] mb-1">
-              <span>TGL:</span>
-              <span>{printData?.date}</span>
-            </div>
-            <div className="flex justify-between text-[8px] mb-1">
-              <span>PLG:</span>
-              <span className="truncate max-w-[80px] uppercase font-bold text-[10px]">{printData?.customerName}</span>
-            </div>
-            <div className="flex justify-between text-[8px] mb-1">
-              <span>ALM:</span>
-              <span className="truncate max-w-[80px] text-[7px] text-right leading-none">{printData?.customerAddress}</span>
-            </div>
-
-            <div className="border-t border-dashed border-black my-1"></div>
-
-            {printData?.items.map((item: any, i: number) => (
-              <div key={i} className="mb-1">
-                <div className="text-[8px] text-left uppercase font-bold leading-none">{item.name}</div>
-                <div className="flex justify-between text-[8px]">
-                  <span>{item.qty} x {item.price.toLocaleString()}</span>
-                  <span>{(item.qty * item.price).toLocaleString()}</span>
-                </div>
+            <div className="space-y-1">
+              <div className="flex justify-between text-[9px]">
+                <span className="font-bold">INV:</span>
+                <span>{printData?.invoice_number}</span>
               </div>
-            ))}
-
-            <div className="border-t border-dashed border-black my-1"></div>
-            
-            <div className="flex justify-between text-[10px] font-bold">
-              <span>TOTAL:</span>
-              <span>{printData?.total_bayar?.toLocaleString('id-ID')}</span>
-            </div>
-            
-            {printData?.payment_status === 'PAID' ? (
-              <>
-                <div className="flex justify-between text-[8px]">
-                  <span>BAYAR:</span>
-                  <span>{printData?.uang_dibayar?.toLocaleString('id-ID')}</span>
-                </div>
-                <div className="flex justify-between text-[8px]">
-                  <span>KEMBALI:</span>
-                  <span>{printData?.kembalian?.toLocaleString('id-ID')}</span>
-                </div>
-                <div className="flex justify-between text-[7px] mt-1 space-x-1">
-                  <span className="bg-black text-white px-1">LUNAS</span>
-                  <span className="italic uppercase">{printData?.metode_pembayaran}</span>
-                </div>
-              </>
-            ) : (
-              <div className="mt-2 text-center border border-black p-1">
-                <p className="text-[8px] font-bold uppercase">Belum Bayar</p>
-                <p className="text-[7px]">Bawa struk ini saat pengambilan</p>
+              <div className="flex justify-between text-[9px]">
+                <span className="font-bold">TGL:</span>
+                <span>{printData?.date}</span>
               </div>
-            )}
+              <div className="flex justify-between text-[9px]">
+                <span className="font-bold">PLG:</span>
+                <span className="font-bold uppercase">{printData?.customerName}</span>
+              </div>
+              <div className="flex justify-between text-[9px]">
+                <span className="font-bold">ALM:</span>
+                <span className="text-right truncate max-w-[120px]">{printData?.customerAddress}</span>
+              </div>
+            </div>
 
             <div className="border-t border-dashed border-black my-2"></div>
-            <p className="text-[7px] leading-none mb-1 uppercase italic text-center">Terima Kasih Telah Menggunakan Jasa Kami</p>
-            <div className="h-6"></div>
+
+            <div className="space-y-2">
+              {printData?.items.map((item: any, i: number) => (
+                <div key={i} className="text-left">
+                  <div className="text-[10px] font-bold uppercase">{item.name}</div>
+                  <div className="flex justify-between text-[9px]">
+                    <span>{item.qty} x {item.price.toLocaleString()}</span>
+                    <span>{(item.qty * item.price).toLocaleString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t border-dashed border-black my-2"></div>
+            
+            <div className="space-y-1">
+              <div className="flex justify-between text-[10px] font-bold">
+                <span>TOTAL:</span>
+                <span>{printData?.total_bayar?.toLocaleString('id-ID')}</span>
+              </div>
+              
+              {printData?.payment_status === 'PAID' ? (
+                <>
+                  <div className="flex justify-between text-[9px]">
+                    <span>BAYAR:</span>
+                    <span>{printData?.uang_dibayar?.toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className="flex justify-between text-[9px]">
+                    <span>KEMBALI:</span>
+                    <span>{printData?.kembalian?.toLocaleString('id-ID')}</span>
+                  </div>
+                  <div className="flex justify-between text-[9px] mt-2 font-bold italic">
+                    <span>LUNAS</span>
+                    <span>{printData?.metode_pembayaran}</span>
+                  </div>
+                </>
+              ) : (
+                <div className="mt-2 text-center border border-black p-1">
+                  <p className="text-[9px] font-bold uppercase">BELUM BAYAR</p>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-dashed border-black my-3"></div>
+            <p className="text-[8px] uppercase italic text-center">Terima Kasih Telah Menggunakan Jasa Kami</p>
+            <div className="h-8"></div>
           </div>
         </div>,
         document.body
