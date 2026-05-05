@@ -502,7 +502,7 @@ export default function ReportsView() {
           #report-thermal-receipt { 
             display: block !important;
             width: 100% !important;
-            padding: 5% !important;
+            padding: 2% !important;
             margin: 0 !important;
             color: black !important;
             background: white !important;
@@ -512,18 +512,18 @@ export default function ReportsView() {
           #report-thermal-receipt * {
             visibility: visible !important;
           }
-          /* Font sangat besar agar saat di-scale down oleh printer thermal (dari A4) tetap terbaca jelas */
-          .text-\[8px\] { font-size: 20pt !important; line-height: 1.3 !important; }
-          .text-\[10px\] { font-size: 24pt !important; line-height: 1.3 !important; }
-          .text-\[7px\] { font-size: 18pt !important; line-height: 1.2 !important; }
-          .text-\[9px\] { font-size: 22pt !important; line-height: 1.3 !important; }
-          .text-\[14px\] { font-size: 32pt !important; line-height: 1.2 !important; }
-          .text-sm { font-size: 26pt !important; line-height: 1.3 !important; }
-          .font-bold { font-weight: 700 !important; }
-          .border-dashed { border-top: 2pt dashed black !important; border-width: 0 !important; }
-          .border-t { border-top: 2pt solid black !important; }
-          .border-b { border-bottom: 2pt solid black !important; }
-          .border-2 { border: 2pt solid black !important; }
+          /* Font RAKSASA agar saat di-scale down dari A4 ke 58mm tetap terlihat normal & tajam */
+          .text-\[8px\] { font-size: 38pt !important; line-height: 1.2 !important; }
+          .text-\[10px\] { font-size: 46pt !important; line-height: 1.2 !important; }
+          .text-\[7px\] { font-size: 34pt !important; line-height: 1.1 !important; }
+          .text-\[9px\] { font-size: 42pt !important; line-height: 1.2 !important; }
+          .text-\[14px\] { font-size: 64pt !important; line-height: 1.1 !important; }
+          .text-sm { font-size: 52pt !important; line-height: 1.2 !important; }
+          .font-bold { font-weight: 800 !important; }
+          .border-dashed { border-top: 4pt dashed black !important; border-width: 0 !important; }
+          .border-t { border-top: 4pt solid black !important; }
+          .border-b { border-bottom: 4pt solid black !important; }
+          .border-2 { border: 4pt solid black !important; }
           .flex { display: flex !important; }
           .justify-between { justify-content: space-between !important; }
         }
