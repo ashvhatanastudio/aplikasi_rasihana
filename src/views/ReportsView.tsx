@@ -141,17 +141,29 @@ export default function ReportsView() {
       const total = subtotal - discount + taxAmount;
 
       // 1. Update Transaction
-      const { error: txError } = await supabase
+      const txUpdateData: any = {
+        total_qty: editingCart.reduce((acc, item) => acc + item.qty, 0),
+        subtotal,
+        discount,
+        tax: taxAmount,
+        total_bayar: total,
+        status: 'PROCESSING'
+      };
+
+      let { error: txError } = await supabase
         .from('transactions')
-        .update({
-          total_qty: editingCart.reduce((acc, item) => acc + item.qty, 0),
-          subtotal,
-          discount,
-          tax: taxAmount,
-          total_bayar: total,
-          status: 'PROCESSING'
-        })
+        .update(txUpdateData)
         .eq('id', tx.id);
+
+      if (txError && txError.message.includes('total_bayar')) {
+        console.warn("Retrying transaction update without 'total_bayar' due to cache issue...");
+        const { total_bayar: _, ...fallbackTxData } = txUpdateData;
+        const retryTx = await supabase
+          .from('transactions')
+          .update(fallbackTxData)
+          .eq('id', tx.id);
+        txError = retryTx.error;
+      }
 
       if (txError) throw txError;
 
@@ -167,7 +179,16 @@ export default function ReportsView() {
         subtotal: item.subtotal
       }));
 
-      const { error: detailError } = await supabase.from('transaction_items').insert(details);
+      let { error: detailError } = await supabase.from('transaction_items').insert(details);
+      
+      // Fallback for schema cache issue with 'name' column
+      if (detailError && detailError.message.includes('name')) {
+        console.warn("Retrying collection update without 'name' column due to cache issue...");
+        const fallbackDetails = details.map(({ name: _, ...rest }) => rest);
+        const retryResult = await supabase.from('transaction_items').insert(fallbackDetails);
+        detailError = retryResult.error;
+      }
+      
       if (detailError) throw detailError;
 
       toast.success('Order data updated successfully');

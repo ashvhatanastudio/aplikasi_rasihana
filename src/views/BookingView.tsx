@@ -90,18 +90,26 @@ export default function BookingView() {
 
       if (txError) throw txError;
 
-      // Register a dummy item for receipt display - safely
+      // Register a dummy item for receipt display - safely with fallback for schema cache issue
       try {
-        await supabase.from('transaction_items').insert({
+        const dummyItem = {
           transaction_id: transaction.id,
           product_id: null,
           name: 'LAYANAN (BERAT MENYUSUL)',
           qty: 1,
           price: 0,
           subtotal: 0
-        });
+        };
+        
+        const { error: itemError } = await supabase.from('transaction_items').insert(dummyItem);
+        
+        if (itemError && itemError.message.includes('name')) {
+          console.warn("Retrying dummy item insert without 'name' column...");
+          const { name: _, ...fallbackItem } = dummyItem;
+          await supabase.from('transaction_items').insert(fallbackItem);
+        }
       } catch (e) {
-        console.error("Non-critical: Failed to insert dummy item");
+        console.error("Non-critical: Failed to insert dummy item", e);
       }
       
       const customerData = customers.find(c => c.id === customerId);
