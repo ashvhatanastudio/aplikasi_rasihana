@@ -531,22 +531,23 @@ export default function POSView() {
             width: 100% !important;
             max-width: none !important; 
             margin: 0 !important;
-            padding: 8mm !important; 
+            padding: 5mm !important; 
             box-sizing: border-box;
             background: white;
             color: black;
-            font-size: 20px !important; /* Diperbesar signifikan */
-            line-height: 1.5 !important;
+            font-size: 24px !important; /* Diperbesar lagi */
+            line-height: 1.2 !important;
           }
           .print-bold { font-weight: 900 !important; }
-          .print-lg { font-size: 28px !important; }
-          .print-xl { font-size: 32px !important; }
-          .print-sm { font-size: 16px !important; }
+          .print-lg { font-size: 32px !important; }
+          .print-xl { font-size: 40px !important; }
+          .print-sm { font-size: 18px !important; }
           
-          /* Garis pemisah lebih tebal */
+          /* Garis pemisah lebih tebal agar terlihat di thermal */
           .print-divider {
-            border-top: 3px dashed black !important;
-            margin: 15px 0 !important;
+            border-top: 5px dashed black !important;
+            margin: 20px 0 !important;
+            width: 100% !important;
           }
         }
       `}</style>
@@ -554,24 +555,24 @@ export default function POSView() {
       {/* Thermal Template Portal - Optimized for Ultra Wide / A4s */}
       {typeof document !== 'undefined' && createPortal(
          <div id="thermal-receipt" className="hidden font-mono text-black">
-            <div className="text-center mb-8">
-              <h2 className="font-bold text-3xl tracking-tighter uppercase print-bold print-xl">SETRIKA.OS</h2>
-              <p className="text-sm font-bold uppercase tracking-widest">Premium Garment Care Service</p>
+            <div className="text-center mb-10">
+              <h2 className="font-bold text-4xl tracking-tighter uppercase print-bold print-xl">SETRIKA.OS</h2>
+              <p className="text-lg font-bold uppercase tracking-widest">Premium Garment Care Service</p>
               <div className="print-divider" />
-              <p className="font-bold text-xl print-bold">{lastTransaction?.invoice_number}</p>
-              <p className="text-base">{lastTransaction?.date}</p>
+              <p className="font-bold text-2xl print-bold">{lastTransaction?.invoice_number}</p>
+              <p className="text-lg">{lastTransaction?.date}</p>
             </div>
 
-            <div className="space-y-3 mb-8 text-lg">
-               <div className="flex justify-between border-b-2 border-gray-100 pb-2">
+            <div className="space-y-4 mb-10 text-xl">
+               <div className="flex justify-between border-b-4 border-gray-100 pb-3">
                  <span>PELANGGAN:</span>
                  <span className="font-bold print-bold uppercase">{lastTransaction?.customerName}</span>
                </div>
-               <div className="flex justify-between border-b-2 border-gray-100 pb-2">
+               <div className="flex justify-between border-b-4 border-gray-100 pb-3">
                  <span>WHATSAPP :</span>
                  <span>{lastTransaction?.customerWA}</span>
                </div>
-               <div className="flex justify-between border-b-2 border-gray-100 pb-2">
+               <div className="flex justify-between border-b-4 border-gray-100 pb-3">
                  <span>ESTIMASI :</span>
                  <span className="font-bold print-bold">{lastTransaction?.estimatedCompletedAt}</span>
                </div>
@@ -579,11 +580,11 @@ export default function POSView() {
 
             <div className="print-divider" />
             
-            <div className="space-y-4 mb-8">
+            <div className="space-y-6 mb-10">
                {lastTransaction?.items.map((item: any, i: number) => (
-                 <div key={i} className="border-b-2 border-dashed border-gray-200 pb-3 last:border-0">
-                    <div className="uppercase font-bold text-lg print-bold">{item.name}</div>
-                    <div className="flex justify-between text-lg mt-1">
+                 <div key={i} className="border-b-4 border-dashed border-gray-200 pb-4 last:border-0">
+                    <div className="uppercase font-bold text-2xl print-bold">{item.name}</div>
+                    <div className="flex justify-between text-xl mt-2">
                        <span>{item.qty} {item.unit} x {item.price.toLocaleString()}</span>
                        <span className="font-bold print-bold">{(item.qty * item.price).toLocaleString()}</span>
                     </div>
@@ -593,8 +594,8 @@ export default function POSView() {
 
             <div className="print-divider" />
             
-            <div className="space-y-3 mb-8 text-lg">
-               <div className="flex justify-between font-bold text-3xl print-bold py-4 border-b-4 border-black">
+            <div className="space-y-4 mb-10 text-xl">
+               <div className="flex justify-between font-bold text-4xl print-bold py-6 border-y-4 border-black my-4">
                  <span>TOTAL:</span>
                  <span>{lastTransaction?.total_bayar.toLocaleString()}</span>
                </div>
@@ -602,29 +603,29 @@ export default function POSView() {
                  <span>BAYAR :</span>
                  <span>{lastTransaction?.uang_dibayar.toLocaleString()}</span>
                </div>
-               <div className="flex justify-between font-bold print-bold text-xl">
+               <div className="flex justify-between font-bold print-bold text-2xl">
                  <span>KEMBALI:</span>
                  <span>{lastTransaction?.kembalian.toLocaleString()}</span>
                </div>
-               <div className="flex justify-between text-sm opacity-70">
+               <div className="flex justify-between text-base opacity-70">
                  <span>METODE :</span>
                  <span className="uppercase">{lastTransaction?.metode_pembayaran}</span>
                </div>
             </div>
 
             {lastTransaction?.notes && (
-              <div className="mt-6 text-lg italic border-4 border-dashed p-4 border-black bg-gray-50">
+              <div className="mt-8 text-xl italic border-4 border-dashed p-6 border-black bg-gray-50">
                 <span className="font-bold not-italic">CATATAN:</span> {lastTransaction.notes}
               </div>
             )}
 
-            <div className="mt-12 text-center space-y-4 border-t-4 border-black pt-8">
-               <p className="uppercase font-bold text-lg leading-relaxed print-bold">
+            <div className="mt-16 text-center space-y-6 border-t-8 border-black pt-10">
+               <p className="uppercase font-bold text-xl leading-snug print-bold">
                   TERIMA KASIH TELAH MEMILIH KAMI.<br/>
                   STRUK INI ADALAH TANDA TERIMA SAH.
                </p>
-               <p className="text-sm italic">Simpan struk ini sebagai syarat pengambilan laundry.</p>
-               <div className="h-16" />
+               <p className="text-base italic">Simpan struk ini sebagai syarat pengambilan laundry.</p>
+               <div className="h-32" />
             </div>
          </div>,
          document.body
