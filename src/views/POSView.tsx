@@ -514,60 +514,79 @@ export default function POSView() {
       {/* CSS For Printing */}
       <style>{`
         @media print {
-          @page { size: 58mm auto; margin: 0; }
-          html, body { width: 58mm; margin: 0; padding: 0; background: white; -webkit-print-color-adjust: exact; }
+          @page { size: auto; margin: 5mm; }
+          html, body { 
+            width: 100%; 
+            margin: 0; 
+            padding: 0; 
+            background: white; 
+            -webkit-print-color-adjust: exact;
+            font-size: 14px; 
+          }
           #root, .fixed, dialog { display: none !important; }
-          #thermal-receipt { display: block !important; width: 58mm; padding: 2mm; box-sizing: border-box; }
+          #thermal-receipt { 
+            display: block !important; 
+            width: 100%;
+            max-width: 80mm; 
+            margin: 0 auto;
+            padding: 4mm; 
+            box-sizing: border-box;
+            background: white;
+            color: black;
+          }
+          .print-bold { font-weight: 900 !important; }
         }
       `}</style>
 
-      {/* Thermal Template Portal - Using the previous logic for consistency in printing */}
+      {/* Thermal Template Portal - Optimized for better readability */}
       {typeof document !== 'undefined' && createPortal(
-         <div id="thermal-receipt" className="hidden font-mono text-[10px] text-black">
-            <div className="text-center mb-2">
-              <h2 className="font-bold text-sm">SETRIKA POS</h2>
-              <p className="text-[8px] uppercase">Rapi & Wangi Tiap Hari</p>
-              <div className="border-t border-dashed border-black my-1" />
-              <p className="font-bold">{lastTransaction?.invoice_number}</p>
-              <p className="text-[8px]">{lastTransaction?.date}</p>
+         <div id="thermal-receipt" className="hidden font-mono text-[12px] text-black leading-tight">
+            <div className="text-center mb-4">
+              <h2 className="font-bold text-lg tracking-tighter uppercase print-bold">SETRIKA.OS</h2>
+              <p className="text-[10px] font-bold uppercase tracking-widest">Premium Garment Care</p>
+              <div className="border-t border-dashed border-black my-2" />
+              <p className="font-bold text-sm print-bold">{lastTransaction?.invoice_number}</p>
+              <p className="text-[10px]">{lastTransaction?.date}</p>
             </div>
 
-            <div className="space-y-1 mb-2">
-               <div className="flex justify-between"><span>PLG:</span><span className="font-bold">{lastTransaction?.customerName}</span></div>
-               <div className="flex justify-between"><span>TEL:</span><span>{lastTransaction?.customerWA}</span></div>
-               <div className="flex justify-between"><span>EST:</span><span className="font-bold">{lastTransaction?.estimatedCompletedAt}</span></div>
+            <div className="space-y-1.5 mb-4 text-[11px]">
+               <div className="flex justify-between"><span>CUST:</span><span className="font-bold print-bold">{lastTransaction?.customerName}</span></div>
+               <div className="flex justify-between"><span>TELP:</span><span>{lastTransaction?.customerWA}</span></div>
+               <div className="flex justify-between"><span>EST :</span><span className="font-bold print-bold">{lastTransaction?.estimatedCompletedAt}</span></div>
             </div>
 
-            <div className="border-t border-dashed border-black my-1" />
+            <div className="border-t border-dashed border-black my-2" />
             
-            <div className="space-y-1">
+            <div className="space-y-2 mb-4">
                {lastTransaction?.items.map((item: any, i: number) => (
                  <div key={i}>
-                    <div className="uppercase font-bold">{item.name}</div>
-                    <div className="flex justify-between">
-                       <span>{item.qty} x {item.price.toLocaleString()}</span>
-                       <span>{(item.qty * item.price).toLocaleString()}</span>
+                    <div className="uppercase font-bold text-[11px] print-bold">{item.name}</div>
+                    <div className="flex justify-between text-[11px]">
+                       <span>{item.qty} {item.unit} x {item.price.toLocaleString()}</span>
+                       <span className="font-bold print-bold">{(item.qty * item.price).toLocaleString()}</span>
                     </div>
                  </div>
                ))}
             </div>
 
-            <div className="border-t border-dashed border-black my-1" />
+            <div className="border-t border-dashed border-black my-2" />
             
-            <div className="space-y-1">
-               <div className="flex justify-between font-bold"><span>TOTAL:</span><span>{lastTransaction?.total_bayar.toLocaleString()}</span></div>
+            <div className="space-y-1.5 text-[11px]">
+               <div className="flex justify-between font-bold text-sm print-bold"><span>TOTAL:</span><span>{lastTransaction?.total_bayar.toLocaleString()}</span></div>
                <div className="flex justify-between"><span>BAYAR:</span><span>{lastTransaction?.uang_dibayar.toLocaleString()}</span></div>
                <div className="flex justify-between"><span>KEMBALI:</span><span>{lastTransaction?.kembalian.toLocaleString()}</span></div>
+               <div className="flex justify-between"><span>METODE:</span><span className="uppercase">{lastTransaction?.metode_pembayaran}</span></div>
             </div>
 
             {lastTransaction?.notes && (
-              <div className="mt-2 text-[8px] italic border p-1 border-black">
-                Notes: {lastTransaction.notes}
+              <div className="mt-4 text-[10px] italic border-2 border-dashed p-2 border-black">
+                NOTES: {lastTransaction.notes}
               </div>
             )}
 
-            <div className="mt-4 text-center text-[7px] uppercase italic">
-               Terima kasih. Simpan struk ini untuk pengambilan.
+            <div className="mt-8 text-center text-[9px] uppercase font-bold leading-relaxed border-t border-black pt-4">
+               TERIMA KASIH TELAH MEMILIH KAMI.<br/>
+               SIMPAN STRUK INI UNTUK PENGAMBILAN.
             </div>
          </div>,
          document.body

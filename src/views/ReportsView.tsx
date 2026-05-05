@@ -374,72 +374,82 @@ export default function ReportsView() {
       {/* Print Overlay CSS */}
       <style>{`
         @media print {
-          @page { size: 58mm auto; margin: 0; }
-          html, body { width: 58mm !important; margin: 0 !important; padding: 0 !important; background: white !important; }
+          @page { size: auto; margin: 5mm; }
+          html, body { 
+            width: 100% !important; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            background: white !important; 
+            -webkit-print-color-adjust: exact;
+            font-size: 14px;
+          }
           #root, .fixed, dialog, [role="dialog"] { display: none !important; }
           #report-thermal-receipt { 
             display: block !important; 
-            width: 58mm !important; 
-            padding: 2mm !important; 
-            margin: 0 !important;
+            width: 100% !important; 
+            max-width: 80mm !important;
+            margin: 0 auto !important;
+            padding: 4mm !important; 
             visibility: visible !important;
             background: white !important;
             color: black !important;
+            box-sizing: border-box;
           }
           #report-thermal-receipt * { visibility: visible !important; }
+          .print-bold { font-weight: 900 !important; }
         }
       `}</style>
 
-      {/* Thermal Template Portal */}
+      {/* Thermal Template Portal - Optimized for better readability */}
       {typeof document !== 'undefined' && createPortal(
-         <div id="report-thermal-receipt" className="hidden font-mono text-[10px] text-black">
-            <div className="text-center mb-2">
-              <h2 className="font-bold text-sm uppercase">KASIR JASA SETRIKA</h2>
-              <p className="text-[8px] uppercase">Rapi • Wangi • Bersih</p>
-              <div className="border-t border-dashed border-black my-1" />
-              <p className="font-bold text-[11px]">{printData?.invoice_number}</p>
-              <p className="text-[8px] italic">{printData?.date}</p>
+         <div id="report-thermal-receipt" className="hidden font-mono text-[12px] text-black leading-tight">
+            <div className="text-center mb-4">
+              <h2 className="font-bold text-lg uppercase tracking-tighter print-bold">SETRIKA.OS</h2>
+              <p className="text-[10px] font-bold uppercase tracking-widest">Premium Garment Care</p>
+              <div className="border-t border-dashed border-black my-2" />
+              <p className="font-bold text-sm print-bold">{printData?.invoice_number}</p>
+              <p className="text-[10px] italic">{printData?.date}</p>
             </div>
 
-            <div className="space-y-1 mb-2 text-[9px]">
-               <div className="flex justify-between"><span>CLIENT:</span><span className="font-bold uppercase truncate max-w-[80px]">{printData?.customerName}</span></div>
-               <div className="flex justify-between"><span>TARGET:</span><span className="font-bold">{printData?.estimatedCompletedAt}</span></div>
+            <div className="space-y-1.5 mb-4 text-[11px]">
+               <div className="flex justify-between"><span>CLIENT:</span><span className="font-bold uppercase truncate max-w-[120px] print-bold">{printData?.customerName}</span></div>
+               <div className="flex justify-between"><span>TELP  :</span><span>{printData?.customerWA}</span></div>
+               <div className="flex justify-between"><span>TARGET:</span><span className="font-bold print-bold">{printData?.estimatedCompletedAt}</span></div>
             </div>
 
-            <div className="border-t border-dashed border-black my-1" />
+            <div className="border-t border-dashed border-black my-2" />
             
-            <div className="space-y-1 my-2">
+            <div className="space-y-2 mb-4">
                {printData?.items.map((item: any, i: number) => (
-                 <div key={i} className="text-[9px]">
-                    <div className="uppercase font-bold leading-tight">{item.name}</div>
+                 <div key={i} className="text-[11px]">
+                    <div className="uppercase font-bold leading-tight print-bold">{item.name}</div>
                     <div className="flex justify-between">
                        <span>{item.qty} × {item.price.toLocaleString()}</span>
-                       <span className="font-bold">{(item.qty * item.price).toLocaleString()}</span>
+                       <span className="font-bold print-bold">{(item.qty * item.price).toLocaleString()}</span>
                     </div>
                  </div>
                ))}
             </div>
 
-            <div className="border-t border-dashed border-black my-1" />
+            <div className="border-t border-dashed border-black my-2" />
             
-            <div className="space-y-0.5 my-2">
-               <div className="flex justify-between font-bold text-[11px]"><span>GRAND TOTAL:</span><span>{printData?.total_bayar.toLocaleString()}</span></div>
-               <div className="flex justify-between text-[8px] opacity-70"><span>METODE:</span><span className="uppercase">{printData?.metode_pembayaran}</span></div>
-               <div className="flex justify-between text-[8px] opacity-70"><span>STATUS:</span><span className="font-bold italic uppercase">{printData?.payment_status === 'PAID' ? 'LUNAS' : 'BELUM BAYAR'}</span></div>
+            <div className="space-y-1.5 mb-4 text-[11px]">
+               <div className="flex justify-between font-bold text-sm print-bold"><span>GRAND TOTAL:</span><span>{printData?.total_bayar.toLocaleString()}</span></div>
+               <div className="flex justify-between text-[10px] opacity-80"><span>METODE:</span><span className="uppercase">{printData?.metode_pembayaran}</span></div>
+               <div className="flex justify-between text-[10px] opacity-80"><span>STATUS:</span><span className="font-bold italic uppercase print-bold">{printData?.payment_status === 'PAID' ? 'LUNAS' : 'BELUM BAYAR'}</span></div>
             </div>
 
             {printData?.notes && (
-              <div className="mt-2 text-[8px] border-y border-black py-1">
-                <span className="font-bold">NOTES:</span> {printData.notes}
+              <div className="mt-4 text-[10px] italic border-2 border-dashed p-2 border-black">
+                <span className="font-bold not-italic">NOTES:</span> {printData.notes}
               </div>
             )}
 
-            <div className="mt-4 text-center text-[7px] space-y-1">
-               <p className="uppercase font-bold border-2 border-black p-1">Simpan struk untuk pengambilan</p>
-               <p className="italic">Customer Service: {printData?.customerWA}</p>
-               <p className="mt-2 opacity-50">• Generated by System Operational Module •</p>
+            <div className="mt-8 text-center text-[9px] space-y-2 border-t border-black pt-4">
+               <p className="uppercase font-bold leading-relaxed">TERIMA KASIH TELAH PERCAYA KEPADA KAMI.<br/>SIMPAN STRUK INI UNTUK PENGAMBILAN.</p>
+               <p className="opacity-70 font-bold tracking-widest">• CORE ENGINE OPERATIONAL MODULE •</p>
             </div>
-            <div className="h-8" />
+            <div className="h-10" />
          </div>,
          document.body
       )}
