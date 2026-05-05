@@ -414,9 +414,21 @@ export default function ReportsView() {
       {/* Thermal Template Portal - Optimized for Ultra Wide / A4s */}
       {typeof document !== 'undefined' && createPortal(
          <div id="report-thermal-receipt" className="hidden font-mono text-black leading-tight">
+            {printData?.payment_status === 'UNPAID' ? (
+              <div className="text-center mb-6">
+                <div className="border-4 border-black p-4 inline-block mb-4">
+                  <h1 className="font-bold text-4xl print-bold uppercase">STRUK BOOKING</h1>
+                </div>
+                <p className="text-xl font-bold uppercase tracking-widest text-center">Tanda Terima Pengambilan</p>
+              </div>
+            ) : (
+              <div className="text-center mb-10">
+                <h2 className="font-bold text-4xl uppercase tracking-tighter print-bold print-xl">SETRIKA.OS</h2>
+                <p className="text-lg font-bold uppercase tracking-widest">Premium Garment Care Service</p>
+              </div>
+            )}
+
             <div className="text-center mb-10">
-              <h2 className="font-bold text-4xl uppercase tracking-tighter print-bold print-xl">SETRIKA.OS</h2>
-              <p className="text-lg font-bold uppercase tracking-widest">Premium Garment Care Service</p>
               <div className="print-divider" />
               <p className="font-bold text-2xl print-bold">{printData?.invoice_number}</p>
               <p className="text-lg italic">{printData?.date}</p>
@@ -453,20 +465,30 @@ export default function ReportsView() {
 
             <div className="print-divider" />
             
-            <div className="space-y-4 mb-10 text-xl">
-               <div className="flex justify-between font-bold text-4xl print-bold py-6 border-y-4 border-black my-4">
-                 <span>GRAND TOTAL:</span>
-                 <span>{printData?.total_bayar.toLocaleString()}</span>
-               </div>
-               <div className="flex justify-between pt-4">
-                 <span>METODE  :</span>
-                 <span className="uppercase">{printData?.metode_pembayaran}</span>
-               </div>
-               <div className="flex justify-between font-bold print-bold text-2xl">
-                 <span>STATUS  :</span>
-                 <span className="italic uppercase">{printData?.payment_status === 'PAID' ? 'LUNAS' : 'BELUM BAYAR'}</span>
-               </div>
-            </div>
+            {printData?.payment_status === 'PAID' ? (
+              <div className="space-y-4 mb-10 text-xl">
+                <div className="flex justify-between font-bold text-4xl print-bold py-6 border-y-4 border-black my-4">
+                  <span>GRAND TOTAL:</span>
+                  <span>{printData?.total_bayar.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between pt-4">
+                  <span>METODE  :</span>
+                  <span className="uppercase">{printData?.metode_pembayaran}</span>
+                </div>
+                <div className="flex justify-between font-bold print-bold text-2xl">
+                  <span>STATUS  :</span>
+                  <span className="italic uppercase">LUNAS</span>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 mb-10 text-xl text-center">
+                 <div className="border-4 border-black p-6 my-4 bg-gray-50">
+                    <p className="text-xl font-bold uppercase mb-2">Total Estimasi Tagihan</p>
+                    <h2 className="text-5xl font-black print-bold">Rp {printData?.total_bayar.toLocaleString()}</h2>
+                 </div>
+                 <p className="text-lg italic font-bold uppercase mt-4">** Pembayaran saat cucian selesai **</p>
+              </div>
+            )}
 
             {printData?.notes && (
               <div className="mt-8 text-xl italic border-4 border-dashed p-6 border-black bg-gray-50">
@@ -476,10 +498,9 @@ export default function ReportsView() {
 
             <div className="mt-16 text-center space-y-6 border-t-8 border-black pt-10">
                <p className="uppercase font-bold text-xl leading-snug print-bold">
-                 TERIMA KASIH ATAS KEPERCAYAAN ANDA.<br/>
+                 {printData?.payment_status === 'PAID' ? 'TERIMA KASIH ATAS KEPERCAYAAN ANDA.' : 'PESANAN TELAH KAMI TERIMA.'}<br/>
                  STRUK INI DIGUNAKAN UNTUK PENGAMBILAN.
                </p>
-               <p className="opacity-70 text-sm font-bold tracking-widest uppercase">Operated by Core Engine Operational Module</p>
                <div className="h-32" />
             </div>
          </div>,

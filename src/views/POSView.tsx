@@ -94,7 +94,7 @@ export default function POSView() {
   const grandTotal = subtotal + taxAmount - discount;
   const change = amountPaid - grandTotal;
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (payNow: boolean = true) => {
     if (!customerId) return toast.error('Pilih pelanggan terlebih dahulu');
     if (cart.length === 0) return toast.error('Keranjang masih kosong');
     if (!user) return toast.error('Sesi login berakhir. Silakan login kembali.');
@@ -110,22 +110,15 @@ export default function POSView() {
         discount: discount,
         tax: taxAmount,
         total_bayar: grandTotal,
-        metode_pembayaran: paymentMethod,
-        uang_dibayar: paymentMethod === 'Tunai' ? amountPaid : grandTotal,
-        kembalian: paymentMethod === 'Tunai' ? Math.max(0, amountPaid - grandTotal) : 0,
-        status: 'PROCESSING',
-        payment_status: 'UNPAID',
+        metode_pembayaran: payNow ? paymentMethod : 'PENDING',
+        uang_dibayar: payNow ? (paymentMethod === 'Tunai' ? amountPaid : grandTotal) : 0,
+        kembalian: payNow ? (paymentMethod === 'Tunai' ? Math.max(0, amountPaid - grandTotal) : 0) : 0,
+        status: payNow ? 'COMPLETED' : 'PROCESSING',
+        payment_status: payNow ? 'PAID' : 'UNPAID',
         laundry_status: 'RECEIVED',
         notes: notes,
         estimated_completed_at: estimatedCompletedAt
       };
-
-      const isDirectPayment = (paymentMethod === 'Tunai' && amountPaid >= grandTotal && grandTotal > 0) || (paymentMethod === 'QRIS' && grandTotal > 0);
-
-      if (isDirectPayment) {
-        txPayload.payment_status = 'PAID';
-        txPayload.status = 'COMPLETED';
-      }
 
       // 1. Transaction Header
       const { data: transaction, error: txError } = await supabase
@@ -169,7 +162,7 @@ export default function POSView() {
       setShowReceipt(true);
       clearCart();
       setAmountPaid(0);
-      toast.success('Transaksi berhasil disimpan!');
+      toast.success(payNow ? 'Transaksi berhasil disimpan!' : 'Pesanan berhasil dibooking!');
     } catch (error: any) {
       toast.error(`Checkout gagal: ${error.message}`);
     } finally {
@@ -426,18 +419,33 @@ export default function POSView() {
                </div>
              )}
 
-             <Button 
-               className="w-full bg-white text-slate-900 hover:bg-slate-100 h-12 text-sm font-bold uppercase tracking-[0.2em] shadow-xl mt-2"
-               disabled={isSubmitting || cart.length === 0 || !customerId}
-               onClick={handleCheckout}
-             >
-               {isSubmitting ? (
-                 <Loader2 className="w-5 h-5 animate-spin mr-2" />
-               ) : (
-                 <CheckCircle2 className="w-5 h-5 mr-2" />
-               )}
-               {isSubmitting ? 'Recording...' : 'Commit Transaction'}
-             </Button>
+             <div className="grid grid-cols-2 gap-2 mt-2">
+                <Button 
+                  variant="outline"
+                  className="w-full h-12 text-sm font-bold uppercase tracking-widest border-slate-200 hover:bg-slate-50"
+                  disabled={isSubmitting || cart.length === 0 || !customerId}
+                  onClick={() => handleCheckout(false)}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  ) : (
+                    <Clock className="w-5 h-5 mr-2" />
+                  )}
+                  Save Booking
+                </Button>
+                <Button 
+                  className="w-full bg-white text-slate-900 hover:bg-slate-100 h-12 text-sm font-bold uppercase tracking-widest shadow-xl"
+                  disabled={isSubmitting || cart.length === 0 || !customerId || (paymentMethod === 'Tunai' && amountPaid < grandTotal)}
+                  onClick={() => handleCheckout(true)}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  ) : (
+                    <CheckCircle2 className="w-5 h-5 mr-2" />
+                  )}
+                  Pay Now
+                </Button>
+             </div>
           </div>
         </Card>
       </div>
@@ -555,9 +563,21 @@ export default function POSView() {
       {/* Thermal Template Portal - Optimized for Ultra Wide / A4s */}
       {typeof document !== 'undefined' && createPortal(
          <div id="thermal-receipt" className="hidden font-mono text-black">
-            <div className="text-center mb-10">
-              <h2 className="font-bold text-4xl tracking-tighter uppercase print-bold print-xl">SETRIKA.OS</h2>
-              <p className="text-lg font-bold uppercase tracking-widest">Premium Garment Care Service</p>
+            {lastTransaction?.payment_status === 'UNPAID' ? (
+              <div className="text-center mb-6">
+                <div className="border-4 border-black p-4 inline-block mb-4">
+                  <h1 className="font-bold text-4xl print-bold uppercase">STRUK BOOKING</h1>
+                </div>
+                <p className="text-xl font-bold uppercase tracking-widest text-center">Tanda Terima Pengambilan</p>
+              </div>
+            ) : (
+              <div className="text-center mb-10">
+                <h2 className="font-bold text-4xl tracking-tighter uppercase print-bold print-xl">SETRIKA.OS</h2>
+                <p className="text-lg font-bold uppercase tracking-widest">Premium Garment Care Service</p>
+              </div>
+            )}
+
+            <div className="text-center mb-8">
               <div className="print-divider" />
               <p className="font-bold text-2xl print-bold">{lastTransaction?.invoice_number}</p>
               <p className="text-lg">{lastTransaction?.date}</p>
@@ -594,24 +614,34 @@ export default function POSView() {
 
             <div className="print-divider" />
             
-            <div className="space-y-4 mb-10 text-xl">
-               <div className="flex justify-between font-bold text-4xl print-bold py-6 border-y-4 border-black my-4">
-                 <span>TOTAL:</span>
-                 <span>{lastTransaction?.total_bayar.toLocaleString()}</span>
-               </div>
-               <div className="flex justify-between pt-4">
-                 <span>BAYAR :</span>
-                 <span>{lastTransaction?.uang_dibayar.toLocaleString()}</span>
-               </div>
-               <div className="flex justify-between font-bold print-bold text-2xl">
-                 <span>KEMBALI:</span>
-                 <span>{lastTransaction?.kembalian.toLocaleString()}</span>
-               </div>
-               <div className="flex justify-between text-base opacity-70">
-                 <span>METODE :</span>
-                 <span className="uppercase">{lastTransaction?.metode_pembayaran}</span>
-               </div>
-            </div>
+            {lastTransaction?.payment_status === 'PAID' ? (
+              <div className="space-y-4 mb-10 text-xl">
+                <div className="flex justify-between font-bold text-4xl print-bold py-6 border-y-4 border-black my-4">
+                  <span>TOTAL:</span>
+                  <span>{lastTransaction?.total_bayar.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between pt-4">
+                  <span>BAYAR :</span>
+                  <span>{lastTransaction?.uang_dibayar.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between font-bold print-bold text-2xl">
+                  <span>KEMBALI:</span>
+                  <span>{lastTransaction?.kembalian.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-base opacity-70">
+                  <span>METODE :</span>
+                  <span className="uppercase">{lastTransaction?.metode_pembayaran}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 mb-10 text-xl text-center">
+                 <div className="border-4 border-black p-6 my-4 bg-gray-50">
+                    <p className="text-xl font-bold uppercase mb-2">Total Estimasi Tagihan</p>
+                    <h2 className="text-5xl font-black print-bold">Rp {lastTransaction?.total_bayar.toLocaleString()}</h2>
+                 </div>
+                 <p className="text-lg italic font-bold uppercase mt-4">** Pembayaran saat cucian selesai **</p>
+              </div>
+            )}
 
             {lastTransaction?.notes && (
               <div className="mt-8 text-xl italic border-4 border-dashed p-6 border-black bg-gray-50">
@@ -621,7 +651,7 @@ export default function POSView() {
 
             <div className="mt-16 text-center space-y-6 border-t-8 border-black pt-10">
                <p className="uppercase font-bold text-xl leading-snug print-bold">
-                  TERIMA KASIH TELAH MEMILIH KAMI.<br/>
+                  {lastTransaction?.payment_status === 'PAID' ? 'TERIMA KASIH TELAH MEMILIH KAMI.' : 'PESANAN TELAH KAMI TERIMA.'}<br/>
                   STRUK INI ADALAH TANDA TERIMA SAH.
                </p>
                <p className="text-base italic">Simpan struk ini sebagai syarat pengambilan laundry.</p>
