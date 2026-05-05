@@ -388,56 +388,62 @@ export default function ReportsView() {
           #root, .fixed, dialog, [role="dialog"] { display: none !important; }
           #report-thermal-receipt { 
             display: block !important; 
-            width: 90% !important;
-            max-width: 100mm !important; 
-            margin: 10mm auto !important;
-            padding: 5mm !important; 
+            width: 100% !important;
+            max-width: none !important; 
+            margin: 0 !important;
+            padding: 8mm !important; 
             visibility: visible !important;
             background: white !important;
             color: black !important;
             box-sizing: border-box;
-            font-size: 16px !important;
-            line-height: 1.4 !important;
+            font-size: 20px !important;
+            line-height: 1.5 !important;
           }
           #report-thermal-receipt * { visibility: visible !important; }
           .print-bold { font-weight: 900 !important; }
-          .print-lg { font-size: 20px !important; }
+          .print-lg { font-size: 28px !important; }
+          .print-xl { font-size: 32px !important; }
+          
+          .print-divider {
+            border-top: 3px dashed black !important;
+            margin: 15px 0 !important;
+          }
         }
       `}</style>
 
-      {/* Thermal Template Portal - Optimized for better readability */}
+      {/* Thermal Template Portal - Optimized for Ultra Wide / A4s */}
       {typeof document !== 'undefined' && createPortal(
          <div id="report-thermal-receipt" className="hidden font-mono text-black leading-tight">
-            <div className="text-center mb-6">
-              <h2 className="font-bold text-2xl uppercase tracking-tighter print-bold print-lg">SETRIKA.OS</h2>
-              <p className="text-xs font-bold uppercase tracking-widest">Premium Garment Care</p>
-              <div className="border-t-2 border-dashed border-black my-4" />
-              <p className="font-bold text-lg print-bold">{printData?.invoice_number}</p>
-              <p className="text-sm italic">{printData?.date}</p>
+            <div className="text-center mb-8">
+              <h2 className="font-bold text-3xl uppercase tracking-tighter print-bold print-xl">SETRIKA.OS</h2>
+              <p className="text-sm font-bold uppercase tracking-widest">Premium Garment Care Service</p>
+              <div className="print-divider" />
+              <p className="font-bold text-xl print-bold">{printData?.invoice_number}</p>
+              <p className="text-base italic">{printData?.date}</p>
             </div>
 
-            <div className="space-y-2 mb-6 text-sm">
-               <div className="flex justify-between border-b border-gray-100 pb-1">
-                 <span>PELANGGAN:</span>
-                 <span className="font-bold uppercase truncate max-w-[150px] print-bold">{printData?.customerName}</span>
+            <div className="space-y-3 mb-8 text-lg">
+               <div className="flex justify-between border-b-2 border-gray-100 pb-2">
+                 <span>PELANGGAN  :</span>
+                 <span className="font-bold uppercase truncate max-w-[200px] print-bold">{printData?.customerName}</span>
                </div>
-               <div className="flex justify-between border-b border-gray-100 pb-1">
-                 <span>WHATSAPP :</span>
+               <div className="flex justify-between border-b-2 border-gray-100 pb-2">
+                 <span>WHATSAPP   :</span>
                  <span>{printData?.customerWA}</span>
                </div>
-               <div className="flex justify-between border-b border-gray-100 pb-1">
+               <div className="flex justify-between border-b-2 border-gray-100 pb-2">
                  <span>PENGAMBILAN:</span>
                  <span className="font-bold print-bold">{printData?.estimatedCompletedAt}</span>
                </div>
             </div>
 
-            <div className="border-t-2 border-dashed border-black my-4" />
+            <div className="print-divider" />
             
-            <div className="space-y-3 mb-6">
+            <div className="space-y-4 mb-8">
                {printData?.items.map((item: any, i: number) => (
-                 <div key={i} className="border-b border-dashed border-gray-200 pb-2 last:border-0">
-                    <div className="uppercase font-bold text-sm leading-tight print-bold">{item.name}</div>
-                    <div className="flex justify-between text-sm mt-1">
+                 <div key={i} className="border-b-2 border-dashed border-gray-200 pb-3 last:border-0">
+                    <div className="uppercase font-bold text-lg leading-tight print-bold">{item.name}</div>
+                    <div className="flex justify-between text-lg mt-1">
                        <span>{item.qty} × {item.price.toLocaleString()}</span>
                        <span className="font-bold print-bold">{(item.qty * item.price).toLocaleString()}</span>
                     </div>
@@ -445,36 +451,36 @@ export default function ReportsView() {
                ))}
             </div>
 
-            <div className="border-t-2 border-dashed border-black my-4" />
+            <div className="print-divider" />
             
-            <div className="space-y-2 mb-6 text-sm">
-               <div className="flex justify-between font-bold text-xl print-bold py-2 border-b-2 border-black">
+            <div className="space-y-3 mb-8 text-lg">
+               <div className="flex justify-between font-bold text-3xl print-bold py-4 border-b-4 border-black">
                  <span>GRAND TOTAL:</span>
                  <span>{printData?.total_bayar.toLocaleString()}</span>
                </div>
-               <div className="flex justify-between pt-2">
+               <div className="flex justify-between pt-4">
                  <span>METODE  :</span>
                  <span className="uppercase">{printData?.metode_pembayaran}</span>
                </div>
-               <div className="flex justify-between font-bold print-bold">
+               <div className="flex justify-between font-bold print-bold text-xl">
                  <span>STATUS  :</span>
                  <span className="italic uppercase">{printData?.payment_status === 'PAID' ? 'LUNAS' : 'BELUM BAYAR'}</span>
                </div>
             </div>
 
             {printData?.notes && (
-              <div className="mt-4 text-sm italic border-2 border-dashed p-3 border-black bg-gray-50">
-                <span className="font-bold not-italic uppercase">Catatan:</span> {printData.notes}
+              <div className="mt-6 text-lg italic border-4 border-dashed p-4 border-black bg-gray-50">
+                <span className="font-bold not-italic uppercase">Catatan Khusus:</span> {printData.notes}
               </div>
             )}
 
-            <div className="mt-10 text-center space-y-3 border-t-2 border-black pt-6">
-               <p className="uppercase font-bold text-sm leading-relaxed print-bold">
+            <div className="mt-12 text-center space-y-4 border-t-4 border-black pt-8">
+               <p className="uppercase font-bold text-lg leading-relaxed print-bold">
                  TERIMA KASIH ATAS KEPERCAYAAN ANDA.<br/>
                  STRUK INI DIGUNAKAN UNTUK PENGAMBILAN.
                </p>
-               <p className="opacity-70 text-[10px] font-bold tracking-widest uppercase">Operated by Core Engine Module</p>
-               <div className="h-10" />
+               <p className="opacity-70 text-xs font-bold tracking-widest uppercase">Operated by Core Engine Operational Module</p>
+               <div className="h-16" />
             </div>
          </div>,
          document.body
