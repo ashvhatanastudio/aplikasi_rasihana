@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Home, ShoppingCart, BarChart2, Users, Package, 
-  Settings, LogOut, Menu, X, Bell, User 
+  Settings, LogOut, Menu, X, Bell, User, CalendarPlus
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Button } from '@/src/components/ui/button';
@@ -23,6 +23,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: 'Overview', icon: Home, id: 'dashboard', roles: ['super_admin', 'admin', 'kasir'] },
   { label: 'Terminal POS', icon: ShoppingCart, id: 'pos', roles: ['super_admin', 'admin', 'kasir'] },
+  { label: 'Booking Pesanan', icon: CalendarPlus, id: 'booking', roles: ['super_admin', 'admin', 'kasir'] },
   { label: 'Service Pipeline', icon: BarChart2, id: 'reports', roles: ['super_admin', 'admin', 'kasir'] },
   { label: 'Client Registry', icon: Users, id: 'customers', roles: ['super_admin', 'admin'] },
   { label: 'Service Assets', icon: Package, id: 'products', roles: ['super_admin', 'admin'] },

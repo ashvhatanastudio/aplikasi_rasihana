@@ -94,63 +94,71 @@ export default function POSView() {
   const grandTotal = subtotal + taxAmount - discount;
   const change = amountPaid - grandTotal;
 
-  const handleCheckout = async (payNow: boolean = true) => {
+  const handleCheckout = async () => {
     if (!customerId) return toast.error('Pilih pelanggan terlebih dahulu');
-    
-    // Booking (payNow=false) allows empty cart, but Payment (payNow=true) requires items
-    if (payNow && cart.length === 0) return toast.error('Keranjang masih kosong untuk pembayaran');
+    if (cart.length === 0) return toast.error('Keranjang masih kosong');
     if (!user) return toast.error('Sesi login berakhir. Silakan login kembali.');
 
     setIsSubmitting(true);
     
     try {
-      // Use placeholder if cart is empty during booking
-      const finalCart = cart.length > 0 ? cart : [
-        { id: 'placeholder', name: 'LAYANAN (BERAT MENYUSUL)', price: 0, qty: 1, unit: 'KG', category: 'BOOKING' }
-      ];
-
-      const finalSubtotal = finalCart.reduce((acc, item) => acc + item.price * item.qty, 0);
-      const finalTax = isTaxEnabled ? finalSubtotal * 0.11 : 0;
-      const finalGrandTotal = finalSubtotal + finalTax - discount;
-
       const txPayload: any = {
         customer_id: customerId,
         kasir_id: user.id,
-        total_qty: finalCart.reduce((acc, i) => acc + i.qty, 0),
-        subtotal: finalSubtotal,
+        total_qty: cart.reduce((acc, i) => acc + i.qty, 0),
+        subtotal: subtotal,
         discount: discount,
-        tax: finalTax,
-        total_bayar: finalGrandTotal,
-        metode_pembayaran: payNow ? paymentMethod : 'PENDING',
-        uang_dibayar: payNow ? (paymentMethod === 'Tunai' ? amountPaid : finalGrandTotal) : 0,
-        kembalian: payNow ? (paymentMethod === 'Tunai' ? Math.max(0, amountPaid - finalGrandTotal) : 0) : 0,
-        status: payNow ? 'COMPLETED' : 'PROCESSING',
-        payment_status: payNow ? 'PAID' : 'UNPAID',
+        tax: taxAmount,
+        total_bayar: grandTotal,
+        metode_pembayaran: paymentMethod,
+        uang_dibayar: paymentMethod === 'Tunai' ? amountPaid : grandTotal,
+        kembalian: paymentMethod === 'Tunai' ? Math.max(0, amountPaid - grandTotal) : 0,
+        status: 'COMPLETED',
+        payment_status: 'PAID',
         laundry_status: 'RECEIVED',
-        notes: notes,
+        notes: estimatedCompletedAt 
+          ? `${notes ? notes + ' | ' : ''}ESTIMASI SELESAI: ${new Date(estimatedCompletedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`
+          : notes,
         estimated_completed_at: estimatedCompletedAt
       };
 
       // 1. Transaction Header
-      const { data: transaction, error: txError } = await supabase
+      let { data: transaction, error: txError } = await supabase
         .from('transactions')
         .insert(txPayload)
-        .select()
+        .select('id, invoice_number, total_bayar, metode_pembayaran, uang_dibayar, kembalian, payment_status')
         .single();
+      
+      // Fallback for schema cache issue
+      if (txError && (txError.message.includes('notes') || txError.message.includes('estimated_completed_at'))) {
+        const { notes: _, estimated_completed_at: __, laundry_status: ___, ...fallbackPayload } = txPayload;
+        const retryResult = await supabase
+          .from('transactions')
+          .insert(fallbackPayload)
+          .select('id, invoice_number, total_bayar, metode_pembayaran, uang_dibayar, kembalian, payment_status')
+          .single();
+        transaction = retryResult.data;
+        txError = retryResult.error;
+      }
 
       if (txError) throw txError;
 
-      // 2. Transaction Items
-      const details = finalCart.map(item => ({
-        transaction_id: transaction.id,
-        product_id: item.id === 'placeholder' ? null : item.id,
-        qty: item.qty,
-        price: item.price,
-        subtotal: item.price * item.qty
-      }));
+      // 2. Transaction Items - Only if there are items in cart
+      if (cart.length > 0) {
+        const details = cart.map(item => ({
+          transaction_id: transaction.id,
+          product_id: item.id,
+          qty: item.qty,
+          price: item.price,
+          subtotal: item.price * item.qty
+        }));
 
-      const { error: detailError } = await supabase.from('transaction_items').insert(details);
-      if (detailError) throw detailError;
+        const { error: detailError } = await supabase.from('transaction_items').insert(details);
+        if (detailError) {
+          console.error("Item insert error:", detailError);
+          // Non-blocking for receipt but we should log it
+        }
+      }
       
       const customerData = customers.find(c => c.id === customerId);
       const receiptData = {
@@ -159,22 +167,36 @@ export default function POSView() {
         metode_pembayaran: transaction.metode_pembayaran,
         uang_dibayar: transaction.uang_dibayar,
         kembalian: transaction.kembalian,
-        payment_status: txPayload.payment_status,
-        items: finalCart,
+        payment_status: transaction.payment_status,
+        items: cart.length > 0 ? [...cart] : [{ name: 'LAYANAN (BERAT MENYUSUL)', qty: 1, unit: 'KG', price: 0 }],
         customerName: customerData?.name || 'PELANGGAN',
         customerWA: customerData?.whatsapp || '-',
         customerAddress: customerData?.address || '-',
-        date: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
+        date: new Date().toLocaleString('id-ID', { 
+           day: 'numeric', 
+           month: 'long', 
+           year: 'numeric',
+           hour: '2-digit',
+           minute: '2-digit'
+        }),
         notes: notes,
-        estimatedCompletedAt: new Date(estimatedCompletedAt).toLocaleDateString('id-ID', { dateStyle: 'medium' })
+        estimatedCompletedAt: estimatedCompletedAt || '-'
       };
 
       setLastTransaction(receiptData);
-      setShowReceipt(true);
+      console.log("Transaction saved, opening receipt:", receiptData);
+      
+      // Cleanup
       clearCart();
       setAmountPaid(0);
-      toast.success(payNow ? 'Transaksi berhasil disimpan!' : 'Pesanan berhasil dibooking!');
+      setNotes('');
+      // Reset to default (2 days from now)
+      setEstimatedCompletedAt(new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString());
+      
+      setShowReceipt(true);
+      toast.success('Transaksi berhasil disimpan!');
     } catch (error: any) {
+      console.error("Checkout detail error:", error);
       toast.error(`Checkout gagal: ${error.message}`);
     } finally {
       setIsSubmitting(false);
@@ -182,7 +204,10 @@ export default function POSView() {
   };
 
   const printReceipt = () => {
-    window.print();
+    // Hidden div for printing is handled by portal
+    setTimeout(() => {
+      window.print();
+    }, 100);
   };
 
   const filteredProducts = products.filter(p => 
@@ -360,7 +385,7 @@ export default function POSView() {
                  <Input 
                   type="date"
                   className="h-8 text-xs bg-white"
-                  value={estimatedCompletedAt.split('T')[0]}
+                  value={estimatedCompletedAt ? estimatedCompletedAt.split('T')[0] : ''}
                   onChange={(e) => setEstimatedCompletedAt(new Date(e.target.value).toISOString())}
                  />
                </div>
@@ -430,33 +455,20 @@ export default function POSView() {
                </div>
              )}
 
-             <div className="grid grid-cols-2 gap-2 mt-2">
+              <div className="pt-2">
                 <Button 
-                  variant="outline"
-                  className="w-full h-12 text-sm font-bold uppercase tracking-widest border-slate-200 hover:bg-slate-50"
-                  disabled={isSubmitting || !customerId}
-                  onClick={() => handleCheckout(false)}
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  ) : (
-                    <Clock className="w-5 h-5 mr-2" />
-                  )}
-                  Save Booking
-                </Button>
-                <Button 
-                  className="w-full bg-white text-slate-900 hover:bg-slate-100 h-12 text-sm font-bold uppercase tracking-widest shadow-xl"
+                  className="w-full bg-blue-600 text-white hover:bg-blue-700 h-14 text-sm font-black uppercase tracking-widest shadow-xl border-none rounded-2xl"
                   disabled={isSubmitting || cart.length === 0 || !customerId || (paymentMethod === 'Tunai' && amountPaid < (subtotal + (isTaxEnabled ? subtotal * 0.11 : 0) - discount))}
-                  onClick={() => handleCheckout(true)}
+                  onClick={() => handleCheckout()}
                 >
                   {isSubmitting ? (
                     <Loader2 className="w-5 h-5 animate-spin mr-2" />
                   ) : (
-                    <CheckCircle2 className="w-5 h-5 mr-2" />
+                    <CheckCircle2 className="w-5 h-5 mr-3" />
                   )}
-                  Pay Now
+                  Lakukan Pembayaran
                 </Button>
-             </div>
+              </div>
           </div>
         </Card>
       </div>

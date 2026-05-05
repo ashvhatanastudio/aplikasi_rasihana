@@ -4,13 +4,14 @@ import {
   Search, Calendar, FileText, Loader2, Download, 
   Eye, Plus, Trash2, Printer, CheckCircle2, 
   Clock, Package, AlertCircle, Phone, MessageSquare,
-  ArrowRightLeft, BadgeCheck
+  ArrowRightLeft, BadgeCheck, Calculator, X, ShoppingBag, RefreshCcw
 } from 'lucide-react';
 import { supabase } from '@/src/lib/supabase';
 import { formatCurrency, cn } from '@/src/lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/src/components/ui/button';
 import { Input } from '@/src/components/ui/input';
+import { Label } from '@/src/components/ui/label';
 import { Badge } from '@/src/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/src/components/ui/tabs';
 import { 
@@ -38,19 +39,30 @@ const LAUNDRY_STEPS = [
   { id: 'COLLECTED', label: 'Diambil', color: 'bg-slate-900 text-white', icon: CheckCircle2 },
 ];
 
-import { RefreshCcw } from 'lucide-react';
-
 export default function ReportsView() {
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedTx, setSelectedTx] = useState<any>(null);
   const [filterMode, setFilterMode] = useState('pipeline'); // pipeline, history
   const [printData, setPrintData] = useState<any>(null);
+  
+  // Edit Order State
+  const [isEditingOrder, setIsEditingOrder] = useState(false);
+  const [editingCart, setEditingCart] = useState<any[]>([]);
+  const [discount, setDiscount] = useState(0);
+  const [isTaxEnabled, setIsTaxEnabled] = useState(false);
 
   useEffect(() => {
     fetchTransactions();
+    fetchProducts();
   }, []);
+
+  const fetchProducts = async () => {
+    const { data, error } = await supabase.from('products').select('*');
+    if (!error && data) setProducts(data);
+  };
 
   const fetchTransactions = async () => {
     setLoading(true);
@@ -120,6 +132,76 @@ export default function ReportsView() {
     } catch (err: any) {
       toast.error('Payment failure: ' + err.message);
     }
+  };
+
+  const handleUpdateOrder = async (tx: any) => {
+    try {
+      const subtotal = editingCart.reduce((acc, item) => acc + item.subtotal, 0);
+      const taxAmount = isTaxEnabled ? subtotal * 0.1 : 0;
+      const total = subtotal - discount + taxAmount;
+
+      // 1. Update Transaction
+      const { error: txError } = await supabase
+        .from('transactions')
+        .update({
+          total_qty: editingCart.reduce((acc, item) => acc + item.qty, 0),
+          subtotal,
+          discount,
+          tax: taxAmount,
+          total_bayar: total,
+          status: 'PROCESSING'
+        })
+        .eq('id', tx.id);
+
+      if (txError) throw txError;
+
+      // 2. Delete old items and insert new ones
+      await supabase.from('transaction_items').delete().eq('transaction_id', tx.id);
+      
+      const details = editingCart.map(item => ({
+        transaction_id: tx.id,
+        product_id: item.product_id,
+        name: item.name,
+        qty: item.qty,
+        price: item.price,
+        subtotal: item.subtotal
+      }));
+
+      const { error: detailError } = await supabase.from('transaction_items').insert(details);
+      if (detailError) throw detailError;
+
+      toast.success('Order data updated successfully');
+      setIsEditingOrder(false);
+      fetchTransactions();
+      setSelectedTx(null);
+    } catch (err: any) {
+      toast.error('Failed to update order: ' + err.message);
+    }
+  };
+
+  const addToEditingCart = (product: any) => {
+    setEditingCart(prev => {
+      const existing = prev.find(p => p.product_id === product.id);
+      if (existing) {
+        return prev.map(p => p.product_id === product.id ? { ...p, qty: p.qty + 1, subtotal: (p.qty + 1) * p.price } : p);
+      }
+      return [...prev, {
+        product_id: product.id,
+        name: product.name,
+        qty: 1,
+        price: product.price,
+        subtotal: product.price
+      }];
+    });
+  };
+
+  const updateEditingQty = (id: string, qty: number) => {
+    if (qty < 0.1) return;
+    setEditingCart(prev => prev.map(p => p.product_id === id ? { ...p, qty, subtotal: qty * p.price } : p));
+  };
+
+  const removeFromEditingCart = (id: string) => {
+    setEditingCart(prev => prev.filter(p => p.product_id !== id));
   };
 
   const handlePrint = (tx: any) => {
@@ -361,12 +443,151 @@ export default function ReportsView() {
                     <Printer className="w-3.5 h-3.5 mr-2" /> Print Struk
                   </Button>
                   {selectedTx?.payment_status !== 'PAID' && (
-                    <Button className="flex-1 bg-slate-900 text-white hover:bg-slate-800 text-[10px] font-bold uppercase tracking-widest h-10" onClick={() => markAsPaid(selectedTx.id)}>
-                      <CheckCircle2 className="w-3.5 h-3.5 mr-2" /> Finalize Payment
-                    </Button>
+                    <>
+                      <Button 
+                        variant="secondary"
+                        className="flex-1 text-[10px] font-bold uppercase tracking-widest h-10" 
+                        onClick={() => {
+                          setEditingCart(selectedTx.transaction_items.map((i: any) => ({
+                            product_id: i.product_id,
+                            name: i.name,
+                            qty: i.qty,
+                            price: i.price,
+                            subtotal: i.subtotal
+                          })).filter((i: any) => i.product_id !== null));
+                          setDiscount(selectedTx.discount || 0);
+                          setIsTaxEnabled(selectedTx.tax > 0);
+                          setIsEditingOrder(true);
+                        }}
+                      >
+                        <Calculator className="w-3.5 h-3.5 mr-2" /> Update Bill
+                      </Button>
+                      <Button className="flex-1 bg-slate-900 text-white hover:bg-slate-800 text-[10px] font-bold uppercase tracking-widest h-10" onClick={() => markAsPaid(selectedTx.id)}>
+                        <CheckCircle2 className="w-3.5 h-3.5 mr-2" /> Pay
+                      </Button>
+                    </>
                   )}
                </div>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Order Dialog */}
+      <Dialog open={isEditingOrder} onOpenChange={setIsEditingOrder}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0 font-sans rounded-3xl">
+          <DialogHeader className="p-6 bg-slate-900 text-white shrink-0">
+             <div className="flex items-center justify-between">
+                <div>
+                  <DialogTitle className="text-xl font-bold uppercase tracking-tighter">Update Order Bill</DialogTitle>
+                  <p className="text-blue-300/60 text-[10px] font-bold uppercase tracking-widest mt-1">
+                    Invoice: {selectedTx?.invoice_number} | Customer: {selectedTx?.customers?.name}
+                  </p>
+                </div>
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10" onClick={() => setIsEditingOrder(false)}>
+                  <X className="w-5 h-5" />
+                </Button>
+             </div>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-2">
+             {/* Product Selection */}
+             <div className="p-6 overflow-y-auto border-r border-slate-100 bg-slate-50/50">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Select Products/Services</h3>
+                <div className="grid grid-cols-2 gap-3">
+                   {products.map(product => (
+                     <button
+                        key={product.id}
+                        onClick={() => addToEditingCart(product)}
+                        className="bg-white p-4 rounded-2xl border-2 border-transparent hover:border-blue-500 hover:shadow-lg transition-all text-left group"
+                     >
+                        <ShoppingBag className="w-5 h-5 text-slate-400 group-hover:text-blue-500 mb-2" />
+                        <p className="text-xs font-bold text-slate-900 uppercase truncate">{product.name}</p>
+                        <p className="text-[10px] text-slate-500 font-mono mt-1">{formatCurrency(product.price)} / {product.unit}</p>
+                     </button>
+                   ))}
+                </div>
+             </div>
+
+             {/* Cart / Summary */}
+             <div className="p-6 overflow-y-auto bg-white flex flex-col">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Current Selection</h3>
+                <div className="flex-1 space-y-3">
+                   {editingCart.length === 0 ? (
+                      <div className="py-20 text-center opacity-30 flex flex-col items-center">
+                         <Calculator className="w-8 h-8 mb-2" />
+                         <p className="text-xs font-bold uppercase text-slate-400">Cart is empty</p>
+                      </div>
+                   ) : (
+                     editingCart.map(item => (
+                       <div key={item.product_id} className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl">
+                          <div className="flex-1 min-w-0">
+                             <p className="text-xs font-bold text-slate-900 uppercase truncate">{item.name}</p>
+                             <p className="text-[10px] text-slate-500">{formatCurrency(item.price)}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                             <Input 
+                                type="number" 
+                                step="0.1"
+                                value={item.qty} 
+                                onChange={(e) => updateEditingQty(item.product_id, parseFloat(e.target.value))}
+                                className="w-16 h-8 text-xs text-center font-bold"
+                             />
+                             <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500" onClick={() => removeFromEditingCart(item.product_id)}>
+                                <Trash2 className="w-4 h-4" />
+                             </Button>
+                          </div>
+                       </div>
+                     ))
+                   )}
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-slate-100 space-y-4">
+                   <div className="flex justify-between items-center text-xs">
+                      <span className="text-slate-500">Subtotal</span>
+                      <span className="font-bold font-mono">{formatCurrency(editingCart.reduce((acc, i) => acc + i.subtotal, 0))}</span>
+                   </div>
+                   
+                   <div className="flex items-center gap-4">
+                      <div className="flex-1 space-y-1">
+                         <Label className="text-[9px] font-bold uppercase text-slate-400">Discount</Label>
+                         <Input 
+                            type="number" 
+                            className="h-8 text-xs" 
+                            value={discount} 
+                            onChange={(e) => setDiscount(parseFloat(e.target.value))} 
+                         />
+                      </div>
+                      <div className="flex flex-col gap-1 items-end pt-5">
+                         <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className={cn("text-[9px] font-bold uppercase tracking-widest h-8 px-2", isTaxEnabled ? "text-blue-600 bg-blue-50" : "text-slate-400")}
+                            onClick={() => setIsTaxEnabled(!isTaxEnabled)}
+                         >
+                            {isTaxEnabled ? 'Tax 10% ON' : 'Add Tax'}
+                         </Button>
+                      </div>
+                   </div>
+
+                   <div className="flex justify-between items-center p-4 bg-slate-900 text-white rounded-2xl">
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Grand Total</span>
+                      <span className="text-xl font-black font-mono">
+                         {formatCurrency(
+                            editingCart.reduce((acc, i) => acc + i.subtotal, 0) - discount + (isTaxEnabled ? editingCart.reduce((acc, i) => acc + i.subtotal, 0) * 0.1 : 0)
+                         )}
+                      </span>
+                   </div>
+
+                   <Button 
+                      className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest rounded-xl"
+                      disabled={editingCart.length === 0}
+                      onClick={() => handleUpdateOrder(selectedTx)}
+                   >
+                      Save Configuration
+                   </Button>
+                </div>
+             </div>
           </div>
         </DialogContent>
       </Dialog>

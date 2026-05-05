@@ -5,6 +5,7 @@ import DashboardView from './views/DashboardView';
 import CustomersView from './views/CustomersView';
 import ProductsView from './views/ProductsView';
 import ReportsView from './views/ReportsView';
+import BookingView from './views/BookingView';
 import LoginView from './views/LoginView';
 import { useAuth } from './hooks/useAuth';
 import { Toaster } from '@/src/components/ui/sonner';
@@ -40,6 +41,8 @@ export default function App() {
         return <DashboardView onNewTransaction={() => setActiveTab('pos')} />;
       case 'pos':
         return <POSView />;
+      case 'booking':
+        return <BookingView />;
       case 'customers':
         return <CustomersView />;
       case 'products':

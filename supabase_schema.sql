@@ -57,15 +57,31 @@ CREATE TABLE IF NOT EXISTS transactions (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Ensure columns exist for older installations
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS estimated_completed_at TIMESTAMPTZ;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS actual_completed_at TIMESTAMPTZ;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS total_bayar NUMERIC(15, 2) DEFAULT 0;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS invoice_number TEXT UNIQUE;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS laundry_status TEXT DEFAULT 'RECEIVED';
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS _schema_version TEXT DEFAULT '1.1'; -- Force another refresh
+COMMENT ON TABLE transactions IS 'Table for laundry transactions v1.1';
+COMMENT ON COLUMN transactions.notes IS 'Catatan khusus transaksi';
+COMMENT ON COLUMN transactions.total_bayar IS 'Total tagihan akhir';
+
 -- 6. Tabel Item Transaksi (transaction_items)
 CREATE TABLE IF NOT EXISTS transaction_items (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     transaction_id UUID REFERENCES transactions(id) ON DELETE CASCADE,
     product_id UUID REFERENCES products(id),
+    name TEXT, -- Tambahkan kolom nama untuk cache/manual item
     qty NUMERIC(10, 2) NOT NULL,
     price NUMERIC(12, 2) NOT NULL,
     subtotal NUMERIC(15, 2) NOT NULL
 );
+
+-- Ensure all columns in transaction_items
+ALTER TABLE transaction_items ADD COLUMN IF NOT EXISTS name TEXT;
 
 -- 7. Row Level Security (RLS)
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
@@ -89,6 +105,10 @@ CREATE POLICY "Public Full Access" ON customers FOR ALL USING (true) WITH CHECK 
 CREATE POLICY "Public Full Access" ON products FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Full Access" ON transactions FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Public Full Access" ON transaction_items FOR ALL USING (true) WITH CHECK (true);
+
+-- Force schema cache refresh
+CREATE TABLE IF NOT EXISTS schema_refresh_trigger (id UUID PRIMARY KEY DEFAULT gen_random_uuid());
+DROP TABLE IF EXISTS schema_refresh_trigger;
 
 -- 8. Fungsi Nomor Invoice Otomatis
 CREATE OR REPLACE FUNCTION generate_invoice_number()
