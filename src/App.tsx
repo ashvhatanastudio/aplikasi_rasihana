@@ -7,6 +7,7 @@ import ProductsView from './views/ProductsView';
 import ReportsView from './views/ReportsView';
 import LoginView from './views/LoginView';
 import { useAuth } from './hooks/useAuth';
+import { Toaster } from '@/src/components/ui/sonner';
 import { Loader2 } from 'lucide-react';
 
 export default function App() {
@@ -16,13 +17,18 @@ export default function App() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-10 h-10 text-[#064e3b] animate-spin" />
+        <Loader2 className="w-10 h-10 text-slate-900 animate-spin" />
       </div>
     );
   }
 
   if (!user) {
-    return <LoginView />;
+    return (
+      <>
+        <LoginView />
+        <Toaster position="top-center" richColors />
+      </>
+    );
   }
 
   const userRole = profile?.role || 'kasir';
@@ -41,17 +47,18 @@ export default function App() {
       case 'reports':
         return <ReportsView />;
       case 'users':
-        return <div className="p-8 text-center text-gray-500 bg-white rounded-xl border">Manajemen Kasir</div>;
+        return <div className="p-12 text-center text-slate-400 font-bold uppercase tracking-widest border-2 border-dashed rounded-3xl">Manajemen Akses Sistem</div>;
       default:
         return <DashboardView onNewTransaction={() => setActiveTab('pos')} />;
     }
   };
 
   return (
-    <Shell activeId={activeTab} setActiveId={setActiveTab} userRole={userRole}>
-      <div className="max-w-7xl mx-auto">
+    <div className="selection:bg-blue-100 selection:text-blue-900">
+      <Shell activeId={activeTab} setActiveId={setActiveTab} userRole={userRole}>
         {renderContent()}
-      </div>
-    </Shell>
+      </Shell>
+      <Toaster position="top-center" richColors closeButton />
+    </div>
   );
 }

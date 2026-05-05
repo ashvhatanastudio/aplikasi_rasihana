@@ -50,6 +50,10 @@ CREATE TABLE IF NOT EXISTS transactions (
     kembalian NUMERIC(15, 2) DEFAULT 0,
     status TEXT DEFAULT 'PENDING', -- PENDING, PROCESSING, COMPLETED
     payment_status TEXT DEFAULT 'UNPAID', -- UNPAID, PAID
+    laundry_status TEXT DEFAULT 'RECEIVED', -- RECEIVED, WASHING, DRYING, IRONING, READY, COLLECTED
+    estimated_completed_at TIMESTAMPTZ,
+    actual_completed_at TIMESTAMPTZ,
+    notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

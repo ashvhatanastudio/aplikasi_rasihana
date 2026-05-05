@@ -1,7 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Trash2, UserPlus, Phone, Mail, Loader2, User } from 'lucide-react';
+import { 
+  Search, Plus, Trash2, UserPlus, Phone, 
+  Loader2, User, MoreVertical, ExternalLink 
+} from 'lucide-react';
 import { supabase } from '@/src/lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
+import { Button } from '@/src/components/ui/button';
+import { Input } from '@/src/components/ui/input';
+import { Badge } from '@/src/components/ui/badge';
+import { 
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow 
+} from '@/src/components/ui/table';
+import { 
+  Dialog, DialogContent, DialogHeader, DialogTitle, 
+  DialogFooter, DialogDescription 
+} from '@/src/components/ui/dialog';
+import { Label } from '@/src/components/ui/label';
+import { 
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/src/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 
 export default function CustomersView() {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -9,12 +28,9 @@ export default function CustomersView() {
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
+  
   // Form state
-  const [name, setName] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
-  const [address, setAddress] = useState('');
+  const [formData, setFormData] = useState({ name: '', whatsapp: '', address: '' });
 
   useEffect(() => {
     fetchCustomers();
@@ -22,56 +38,56 @@ export default function CustomersView() {
 
   const fetchCustomers = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('customers')
-      .select('*')
-      .order('name', { ascending: true });
-    
-    if (error) console.error('Error fetching customers:', error);
-    if (data) setCustomers(data);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .order('name', { ascending: true });
+      
+      if (error) throw error;
+      if (data) setCustomers(data);
+    } catch (err: any) {
+      toast.error('Gagal memuat pelanggan: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setErrorMessage(null);
+    if (!formData.name) return toast.error('Nama wajib diisi');
     
+    setIsSubmitting(true);
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('customers')
-        .insert([{ name, whatsapp, address }])
-        .select();
+        .insert([formData]);
 
-      if (error) {
-        console.error('DB Insert Error:', error);
-        setErrorMessage(error.message);
-      } else {
-        setName('');
-        setWhatsapp('');
-        setAddress('');
-        setShowModal(false);
-        fetchCustomers();
-      }
+      if (error) throw error;
+      
+      toast.success('Pelanggan berhasil didaftarkan');
+      setFormData({ name: '', whatsapp: '', address: '' });
+      setShowModal(false);
+      fetchCustomers();
     } catch (err: any) {
-      setErrorMessage('Terjadi kesalahan fatal: ' + err.message);
+      toast.error(err.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const deleteCustomer = async (id: string) => {
-    if (!confirm('Hapus pelanggan ini?')) return;
-    
-    const { error } = await supabase
-      .from('customers')
-      .delete()
-      .eq('id', id);
+    try {
+      const { error } = await supabase
+        .from('customers')
+        .delete()
+        .eq('id', id);
 
-    if (error) {
-      alert('Gagal menghapus: Pelanggan mungkin memiliki riwayat transaksi.');
-    } else {
+      if (error) throw error;
+      toast.success('Data pelanggan dihapus');
       fetchCustomers();
+    } catch (err: any) {
+      toast.error('Gagal hapus: Pelanggan mungkin memiliki riwayat transaksi aktif.');
     }
   };
 
@@ -81,169 +97,135 @@ export default function CustomersView() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 container mx-auto p-4 md:p-6 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Internal Registry</h1>
-          <p className="text-xs text-slate-500 font-medium uppercase tracking-widest mt-1">Personnel & Clients Identification</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Client Hub</h1>
+          <p className="text-xs text-slate-500 font-medium uppercase tracking-widest mt-1">Personnel & Registry Management</p>
         </div>
-        <button 
-          onClick={() => setShowModal(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded text-xs font-bold uppercase tracking-widest flex items-center shadow-lg hover:bg-blue-700 transition-all"
-        >
-          <UserPlus className="w-3.5 h-3.5 mr-2" /> Register New Entry
-        </button>
+        <Button onClick={() => setShowModal(true)} className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200">
+          <UserPlus className="w-4 h-4 mr-2" /> Register New Entry
+        </Button>
       </div>
 
-      <div className="bg-white rounded border border-slate-200 overflow-hidden">
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center group">
-          <Search className="w-4 h-4 text-slate-400 mr-3 group-focus-within:text-blue-500 transition-colors" />
-          <input 
-            type="text" 
-            placeholder="Search by identity or contact digits..."
-            className="bg-transparent border-none outline-none text-xs font-medium w-full text-slate-600"
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div className="p-4 bg-slate-50/50 border-b border-slate-200 flex items-center">
+          <Search className="w-4 h-4 text-slate-400 mr-3" />
+          <Input 
+            placeholder="Search by identity or contact protocol..."
+            className="border-none shadow-none bg-transparent focus-visible:ring-0 text-xs font-medium"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/50 text-[10px] uppercase tracking-widest font-bold text-slate-400 border-b border-slate-200">
-                <th className="px-6 py-3 font-bold">Identity</th>
-                <th className="px-6 py-3 font-bold">Communication</th>
-                <th className="px-6 py-3 font-bold">Postal Address</th>
-                <th className="px-6 py-3 font-bold text-right">Protocol</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+          <Table>
+            <TableHeader className="bg-slate-50">
+              <TableRow>
+                <TableHead className="px-6 py-4 text-[10px] uppercase font-bold tracking-widest">Client Identity</TableHead>
+                <TableHead className="px-6 py-4 text-[10px] uppercase font-bold tracking-widest">Comm. Protocol</TableHead>
+                <TableHead className="px-6 py-4 text-[10px] uppercase font-bold tracking-widest">Postal Location</TableHead>
+                <TableHead className="px-6 py-4 text-[10px] uppercase font-bold tracking-widest text-right">Operations</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {loading ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center">
-                    <Loader2 className="w-6 h-6 text-blue-600 animate-spin mx-auto" />
-                  </td>
-                </tr>
+                <TableRow>
+                  <TableCell colSpan={4} className="h-40 text-center">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600 opacity-20" />
+                  </TableCell>
+                </TableRow>
               ) : filteredCustomers.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-slate-400 text-xs font-medium italic">
-                    No matching records found in central node.
-                  </td>
-                </tr>
+                <TableRow>
+                  <TableCell colSpan={4} className="h-40 text-center text-slate-400 text-xs italic">
+                    No matching identities found in registry.
+                  </TableCell>
+                </TableRow>
               ) : (
                 filteredCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
-                          <User className="w-4 h-4" />
-                        </div>
-                        <span className="text-xs font-bold text-slate-900 uppercase tracking-tight">{customer.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center text-[11px] font-mono font-bold text-slate-600">
-                          <Phone className="w-3 h-3 mr-1.5 text-slate-300" /> {customer.whatsapp}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-[11px] text-slate-500 font-medium line-clamp-1">{customer.address || '-'}</span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button 
-                        onClick={() => deleteCustomer(customer.id)}
-                        className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-all"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
+                  <TableRow key={customer.id} className="group hover:bg-slate-50/50 transition-colors">
+                    <TableCell className="px-6 py-4 capitalize font-bold text-slate-900 border-l-2 border-transparent group-hover:border-blue-500">
+                      {customer.name}
+                    </TableCell>
+                    <TableCell className="px-6 py-4 font-mono font-bold text-slate-500">
+                      {customer.whatsapp}
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-slate-400 max-w-xs truncate italic">
+                      {customer.address || 'Location undefined'}
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-right">
+                       <DropdownMenu>
+                         <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-300 hover:text-slate-900">
+                               <MoreVertical className="w-4 h-4" />
+                            </Button>
+                         </DropdownMenuTrigger>
+                         <DropdownMenuContent align="end">
+                            <DropdownMenuItem className="text-xs font-bold uppercase transition-colors">
+                               <ExternalLink className="w-3 h-3 mr-2" /> View History
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-xs font-bold uppercase text-red-500 focus:bg-red-50 focus:text-red-500 transition-colors"
+                              onClick={() => deleteCustomer(customer.id)}
+                            >
+                               <Trash2 className="w-3 h-3 mr-2" /> Purge Entry
+                            </DropdownMenuItem>
+                         </DropdownMenuContent>
+                       </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 
-      <AnimatePresence>
-        {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-              onClick={() => setShowModal(false)}
-            />
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="bg-white rounded-lg shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden relative z-10"
-            >
-              <div className="p-4 bg-slate-50 border-b border-slate-200">
-                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Identity Enrollment</h3>
-              </div>
-              <form onSubmit={handleAddCustomer} className="p-6 space-y-4">
-                {errorMessage && (
-                  <div className="p-3 bg-red-50 border border-red-100 rounded text-[10px] text-red-600 font-bold uppercase tracking-tight">
-                    {errorMessage}
-                  </div>
-                )}
-                <div className="space-y-1.5">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-1">Full Designation</label>
-                  <input 
-                    required
-                    type="text" 
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded text-xs font-bold bg-slate-50 focus:bg-white focus:border-blue-500 outline-none"
-                    placeholder="CLIENT_NAME_01"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-1">Contact Protocol (WA)</label>
-                  <input 
-                    required
-                    type="text" 
-                    value={whatsapp}
-                    onChange={(e) => setWhatsapp(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded text-xs font-bold font-mono bg-slate-50 focus:bg-white focus:border-blue-500 outline-none"
-                    placeholder="628123XXX"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest pl-1">Operational Area (Address)</label>
-                  <textarea 
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded text-xs font-medium bg-slate-50 focus:bg-white focus:border-blue-500 outline-none h-20 resize-none"
-                    placeholder="LOC_COORDINATES..."
-                  />
-                </div>
-                <div className="flex gap-2 pt-2">
-                  <button 
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="flex-1 px-4 py-2.5 border border-slate-200 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:bg-slate-50 rounded"
-                  >
-                    Abort
-                  </button>
-                  <button 
-                    disabled={isSubmitting}
-                    className="flex-3 bg-blue-600 text-white px-4 py-2.5 rounded text-[10px] font-bold uppercase tracking-widest flex items-center justify-center hover:bg-blue-700 disabled:bg-blue-300"
-                  >
-                    {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" /> : <UserPlus className="w-3.5 h-3.5 mr-2" />}
-                    Confirm Registration
-                  </button>
-                </div>
-              </form>
-            </motion.div>
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Client Identity Enrollment</DialogTitle>
+            <DialogDescription>Input new personnel data to the internal central registry.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-6 py-4">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Full Designation</Label>
+              <Input 
+                value={formData.name} 
+                onChange={e => setFormData({...formData, name: e.target.value})} 
+                placeholder="e.g. John Matrix" 
+                className="h-11 border-slate-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">WhatsApp / Secure Line</Label>
+              <Input 
+                value={formData.whatsapp} 
+                onChange={e => setFormData({...formData, whatsapp: e.target.value})} 
+                placeholder="62812XXXX" 
+                className="h-11 border-slate-200 font-mono"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Stationary Address</Label>
+              <Input 
+                value={formData.address} 
+                onChange={e => setFormData({...formData, address: e.target.value})} 
+                placeholder="Unit, Floor, Street..." 
+                className="h-11 border-slate-200"
+              />
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowModal(false)} className="uppercase text-[10px] font-bold tracking-widest">Abort</Button>
+            <Button onClick={handleAddCustomer} disabled={isSubmitting} className="uppercase text-[10px] font-bold tracking-widest">
+              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+              Commit Data
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
